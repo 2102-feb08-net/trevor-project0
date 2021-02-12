@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Models
 {
@@ -21,6 +22,36 @@ namespace Models
             Address = address;
             Cart = new Order(this);
             OrderHistory = new List<Order>();
+        }
+
+        public void AddItemToCart(Product product)
+        {
+            Cart.Add(product);
+        }
+
+        public void RemoveItemFromCart(Product product)
+        {
+            Cart.Delete(product);
+        }
+
+        public void SubmitOrder()
+        {
+            if(Cart.Items.Count == 0)
+            {
+                return;
+            }
+            OrderHistory.Add(Cart);
+            Cart = new Order(this);
+        }
+
+        public void PrintOrderHistory()
+        {
+            Console.WriteLine("ID\tItems\t\t\tTotal Price");
+            Console.WriteLine("__________________________________________________________________________________________");
+            foreach(var order in OrderHistory)
+            {
+                Console.WriteLine($"{order.ID}\t{order.GetItemNames()}\t\t\t${order.TotalPrice}");
+            }
         }
     }
 }

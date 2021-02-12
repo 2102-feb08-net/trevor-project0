@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Models
 {
@@ -17,6 +18,28 @@ namespace Models
             Items = new List<Product>();
             TotalPrice = 0.0;
             Customer = customer;
+        }
+
+        public void Add(Product product)
+        {
+            Items.Add(product);
+            TotalPrice += product.Price;
+        }
+
+        public void Delete(Product product)
+        {
+            Items.Remove(product);
+            TotalPrice -= product.Price;
+        }
+
+        public string GetItemNames()
+        {
+            string ret = "";
+            foreach(var item in Items)
+            {
+                ret += item.Name + ", ";
+            }
+            return ret;
         }
     }
 }
