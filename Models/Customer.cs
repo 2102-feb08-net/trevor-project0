@@ -12,26 +12,28 @@ namespace Models
         public string Address {get;}
         public Order Cart {get; set;}
         public List<Order> OrderHistory {get; set;}
+        public Store DefaultStore {get; set;}
 
-        public Customer(string name, string email, string address)
+        public Customer(string name, string email, string address, Store store)
         {
             ID = _idSeed;
             _idSeed++;
             Name = name;
             Email = email;
             Address = address;
-            Cart = new Order(this);
+            Cart = new Order(this, store);
             OrderHistory = new List<Order>();
+            DefaultStore = store;
         }
 
-        public void AddItemToCart(Product product)
+        public void AddItemToCart(Product product, int quantity)
         {
-            Cart.Add(product);
+            Cart.Add(product, quantity);
         }
 
-        public void RemoveItemFromCart(Product product)
+        public void RemoveItemFromCart(Product product, int quantity)
         {
-            Cart.Delete(product);
+            Cart.Delete(product, quantity);
         }
 
         public void SubmitOrder()
@@ -41,17 +43,13 @@ namespace Models
                 return;
             }
             OrderHistory.Add(Cart);
-            Cart = new Order(this);
+            Cart = new Order(this, DefaultStore);
         }
 
         public void PrintOrderHistory()
         {
             Console.WriteLine("ID\tItems\t\t\tTotal Price");
             Console.WriteLine("__________________________________________________________________________________________");
-            foreach(var order in OrderHistory)
-            {
-                Console.WriteLine($"{order.ID}\t{order.GetItemNames()}\t\t\t${order.TotalPrice}");
-            }
         }
     }
 }

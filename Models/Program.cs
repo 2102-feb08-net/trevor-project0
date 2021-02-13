@@ -7,12 +7,25 @@ namespace Models
     {
         public static void Main(string[] args)
         {
-            Customer me = new Customer("Trevor", "tdunbar123@yahoo.com", "28 Mayo Avenue");
-            Product apple = new Product("Apple", .50);
-            me.AddItemToCart(apple);
-            me.AddItemToCart(apple);
-            me.SubmitOrder();
-            me.PrintOrderHistory();
+            bool running = true;
+            while(running)
+            {
+                int option = 0;
+                while(!(option > 0 && option < 7))
+                {
+                    Console.WriteLine("Choose an option:\n[1] Add Customer\n[2] Search Customers\n[3] Place order for customer\n[4] Display order details\n[5] Display customer order history\n[6] Display store order history");
+                    string input = Console.ReadLine();
+                    try
+                    {
+                        option = int.Parse(input);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Invalid input.");
+                    }
+                }
+                Console.WriteLine("yay");
+            }
         }
     }
 }
