@@ -12,7 +12,7 @@ namespace Models
         public string Address {get;}
         public Order Cart {get; set;}
         public List<Order> OrderHistory {get; set;}
-        public Store DefaultStore {get; set;}
+        public Store Store {get; set;}
 
         public Customer(string name, string email, string address, Store store)
         {
@@ -23,7 +23,7 @@ namespace Models
             Address = address;
             Cart = new Order(this, store);
             OrderHistory = new List<Order>();
-            DefaultStore = store;
+            Store = store;
         }
 
         public void AddItemToCart(Product product, int quantity)
@@ -42,14 +42,31 @@ namespace Models
             {
                 return;
             }
-            OrderHistory.Add(Cart);
-            Cart = new Order(this, DefaultStore);
+            try
+            {
+                Store.ProcessOrder(Cart);
+                OrderHistory.Add(Cart);
+                Cart = new Order(this, Store);
+            }
+            catch
+            {
+                throw new Exception("Could not process order.");
+            }
+        }
+
+        public void PrintCart()
+        {
+            Cart.DisplayDetails();
         }
 
         public void PrintOrderHistory()
         {
-            Console.WriteLine("ID\tItems\t\t\tTotal Price");
+            Console.WriteLine("ID\tDate of Order\t\t\tTotal Price");
             Console.WriteLine("__________________________________________________________________________________________");
+            foreach(var order in OrderHistory)
+            {
+                Console.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t{order.TotalPrice}");
+            }
         }
     }
 }

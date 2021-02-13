@@ -56,9 +56,20 @@ namespace Models
             }
         }
 
-        public string GetItemNames()
+        public void SetOrderTime()
         {
-            return "";
+            OrderTime = DateTime.Now;
+        }
+
+        public void DisplayDetails()
+        {
+            Console.WriteLine($"Order number: {ID}\nStore: {Store.Name}, {Store.Location}\nCustomer name: {Customer.Name}\nTimestamp: {OrderTime.Date.ToString("d")}");
+            Console.WriteLine("Receipt\n________");
+            foreach(var item in Items)
+            {
+                Console.WriteLine($"({item.Value}) {item.Key.Name} ${item.Key.Price*item.Value}");
+            }
+            Console.WriteLine($"Total: ${TotalPrice}");
         }
     }
 }
