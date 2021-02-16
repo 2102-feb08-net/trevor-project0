@@ -47,6 +47,18 @@ namespace Models
             Customers.Add(customer);
         }
 
+        public Customer GetCustomerByID(int id)
+        {
+            foreach(var customer in Customers)
+            {
+                if(customer.ID == id)
+                {
+                    return customer;
+                }
+            }
+            throw new Exception("No such customer.");
+        }
+
         public Customer GetCustomerByName(string name)
         {
             foreach(var customer in Customers)
