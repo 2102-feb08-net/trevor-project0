@@ -21,17 +21,16 @@ namespace Models
         {
             bool running = true;
             //Test material
-            Store store = new Store("Giant foods", "Annapolis");
-            Product apple = new Product("Apple", 0.5);
-            Product cereal = new Product("Cheerios", 3);
-            Product milk = new Product("Milk", 4);
-            Product steak = new Product("Steak", 12);
-            store.AddToInventory(apple, 20);
-            store.AddToInventory(cereal, 15);
-            store.AddToInventory(milk, 30);
-            store.AddToInventory(steak, 5);
-            Customers.Add(new Customer("Trevor", "tdunbar123@yahoo.com", "28 Mayo Avenue", store));
-            Stores.Add(store);
+            //Store store = new Store("Giant foods", "Annapolis");
+            //Product apple = new Product("Apple", 0.5);
+            //Product cereal = new Product("Cheerios", 3);
+            //Product milk = new Product("Milk", 4);
+            //Product steak = new Product("Steak", 12);
+            //store.AddToInventory(apple, 20);
+            //store.AddToInventory(cereal, 15);
+            //store.AddToInventory(milk, 30);
+            //store.AddToInventory(steak, 5);
+            //Stores.Add(store);
             Store currentStore = null;
 
             while(running)
@@ -91,7 +90,7 @@ namespace Models
             }
         }
 
-        public static Customer AddNewCustomer(Store store)
+        public Customer AddNewCustomer(Store store)
         {
             Console.Write("Enter a name for new customer: ");
             string name = Console.ReadLine();
@@ -105,17 +104,17 @@ namespace Models
             return c;
         }
 
-        public static void SearchCustomerByName(Store store)
+        public void SearchCustomerByName(Store store)
         {
             Console.Write("Enter a name to search customers: ");
             string search = Console.ReadLine();
             Customer find = store.GetCustomerByName(search);
             Console.WriteLine("Customer found!");
             Console.WriteLine("Name\tEmail\tAddress");
-            Console.WriteLine($"{find.Name}\t{find.Email}\t{find.Address}");
+            Console.WriteLine($"{find.ID}\t{find.Name}\t{find.Email}\t{find.Address}");
         }
 
-        public static void PlaceNewOrder(Store store)
+        public void PlaceNewOrder(Store store)
         {
             Console.Write("Enter a customer id to order for them: ");
             string input = Console.ReadLine();
@@ -172,7 +171,7 @@ namespace Models
             }
         }
 
-        public static void DisplayOrderDetails(Store store)
+        public void DisplayOrderDetails(Store store)
         {
             Console.Write("Enter the order number to display: ");
             int orderNumber = int.Parse(Console.ReadLine());
@@ -180,7 +179,7 @@ namespace Models
             order.DisplayDetails();
         }
 
-        public static void DisplayCustomerOrders(Store store)
+        public void DisplayCustomerOrders(Store store)
         {
             Console.Write("Enter a name of a customer to display their orders: ");
             string name = Console.ReadLine();
@@ -188,22 +187,60 @@ namespace Models
             customer.PrintOrderHistory();
         }
 
-        public static void DisplayStoreOrders(Store store)
+        public void DisplayStoreOrders(Store store)
         {
             store.PrintOrderHistory();
         }
 
-        public static void EditInventory(Store store)
+        public void EditInventory(Store store)
         {
             bool editting = true;
             while(editting)
             {
-                Console.Write("Select an action:\n[1] Add a new product\n[2] Add inventory for existing product\n[3] Change price of existing product");
-                
+                int option = 0;
+                while(!(option > 0 && option < 5))
+                {
+                    Outputter.WriteLine("Select an action:\n[1] Add a new product\n[2] Add inventory for existing product\n[3] Change price of existing product\n[4] Quit back to main menu");
+                    option = Inputter.GetIntegerInput();
+                }
+                switch(option)
+                {
+                    case 1:
+                        Outputter.Write("Enter a product name: ");
+                        string name = Inputter.GetStringInput();
+                        Outputter.Write("Enter a price: ");
+                        double price = Inputter.GetDoubleInput();
+                        Outputter.Write("How many do you want to add to inventory: ");
+                        int quantity = Inputter.GetIntegerInput();
+                        Product p = new Product(name, price);
+                        store.AddToInventory(p, quantity);
+                        Outputter.WriteLine("Product added to inventory successfully!");
+                        break;
+                    case 2:
+                        Outputter.Write("Enter a product ID: ");
+                        Product p2 = store.GetProductByID(Inputter.GetIntegerInput());
+                        Outputter.Write("How many do you want to add to inventory: ");
+                        int quantity2 = Inputter.GetIntegerInput();
+                        store.AddToInventory(p2, quantity2);
+                        Outputter.WriteLine("Product inventory added successfully!");
+                        break;
+                    case 3:
+                        Outputter.Write("Enter a product ID: ");
+                        Product p3 = store.GetProductByID(Inputter.GetIntegerInput());
+                        Outputter.Write("Enter a new price for the item: ");
+                        double price2 = Inputter.GetDoubleInput();
+                        p3.ChangePrice(price2);
+                        store.UpdateItemPrice(p3);
+                        Outputter.WriteLine("Price changed successfully!");
+                        break;
+                    case 4:
+                        editting = false;
+                        break;
+                }
             }
         }
 
-        public static Store GetStoreByLocation(string location, List<Store> Stores)
+        public Store GetStoreByLocation(string location, List<Store> Stores)
         {
             foreach(var store in Stores)
             {
@@ -216,7 +253,7 @@ namespace Models
             return null;
         }
 
-        public static void PrintStoreLocations(List<Store> Stores)
+        public void PrintStoreLocations(List<Store> Stores)
         {
             foreach(var store in Stores)
             {

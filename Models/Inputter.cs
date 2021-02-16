@@ -12,7 +12,7 @@ namespace Models
             while(flag)
             {
                 input = Console.ReadLine();
-                if(input.All(Char.IsLetter))
+                if(input.All(c => char.IsLetter(c) || char.IsWhiteSpace(c)))
                 {
                     flag = false;
                 }

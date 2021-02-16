@@ -115,6 +115,29 @@ namespace Models
             throw new ArgumentException("Item doesn't exist in the inventory.");
         }
 
+        public Product GetProductByID(int id)
+        {
+            foreach(var item in Inventory)
+            {
+                if(item.Key.ID == id)
+                {
+                    return item.Key;
+                }
+            }
+            throw new ArgumentException("Item doesn't exist in the inventory.");
+        }
+
+        public void UpdateItemPrice(Product newProduct)
+        {
+            foreach(var item in Inventory)
+            {
+                if(item.Key.ID == newProduct.ID)
+                {
+                    item.Key.Price = newProduct.Price;
+                }
+            }
+        }
+
         public void PrintInventory()
         {
             foreach(var item in Inventory)
