@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
-
+//
+// TODO Remove all dependency on Customer and Store class objects. All order modification and submission logic should be performed here.
+//
 namespace Models
 {
     public class Order

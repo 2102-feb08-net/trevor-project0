@@ -20,19 +20,8 @@ namespace Models
         public void Run()
         {
             bool running = true;
-            //Test material
-            //Store store = new Store("Giant foods", "Annapolis");
-            //Product apple = new Product("Apple", 0.5);
-            //Product cereal = new Product("Cheerios", 3);
-            //Product milk = new Product("Milk", 4);
-            //Product steak = new Product("Steak", 12);
-            //store.AddToInventory(apple, 20);
-            //store.AddToInventory(cereal, 15);
-            //store.AddToInventory(milk, 30);
-            //store.AddToInventory(steak, 5);
-            //Stores.Add(store);
             Store currentStore = null;
-
+            
             while(running)
             {
                 while(currentStore == null)
@@ -54,7 +43,7 @@ namespace Models
                     }
                 }
                 int option = 0;
-                while(!(option > 0 && option < 8))
+                while(!(option > 0 && option < 9))
                 {
                     Outputter.WriteLine("Choose an option:\n[1] Add Customer\n[2] Search Customers\n[3] Place order for customer\n[4] Display order details\n[5] Display customer order history\n[6] Display store order history\n[7] Edit inventory\n[8] Change store locations");
                     option = Inputter.GetIntegerInput();
@@ -62,8 +51,7 @@ namespace Models
                 switch(option)
                 {
                     case 1:
-                        Customer c = AddNewCustomer(currentStore);
-                        Customers.Add(c);
+                        AddNewCustomer(currentStore);
                         break;
                     case 2:
                         SearchCustomerByName(currentStore);
@@ -90,74 +78,66 @@ namespace Models
             }
         }
 
-        public Customer AddNewCustomer(Store store)
+        public void AddNewCustomer(Store store)
         {
-            Console.Write("Enter a name for new customer: ");
-            string name = Console.ReadLine();
-            Console.Write("Enter an email for new customer: ");
-            string email = Console.ReadLine();
-            Console.Write("Enter an address for new customer: ");
-            string address = Console.ReadLine();
+            Outputter.Write("Enter a name for new customer: ");
+            string name = Inputter.GetStringInput();
+            Outputter.Write("Enter an email for new customer: ");
+            string email = Inputter.GetStringInput();
+            Outputter.Write("Enter an address for new customer: ");
+            string address = Inputter.GetStringInput();
             Customer c = new Customer(name, email, address, store);
             store.AddCustomer(c);
-            Console.WriteLine("Customer added successfully!");
-            return c;
+            Customers.Add(c);
+            Outputter.WriteLine("Customer added successfully!");
         }
 
         public void SearchCustomerByName(Store store)
         {
-            Console.Write("Enter a name to search customers: ");
-            string search = Console.ReadLine();
+            Outputter.Write("Enter a name to search customers: ");
+            string search = Inputter.GetStringInput();
             Customer find = store.GetCustomerByName(search);
-            Console.WriteLine("Customer found!");
-            Console.WriteLine("Name\tEmail\tAddress");
-            Console.WriteLine($"{find.ID}\t{find.Name}\t{find.Email}\t{find.Address}");
+            Outputter.WriteLine("Customer found!");
+            Outputter.WriteLine("ID\tName\tEmail\tAddress");
+            Outputter.WriteLine($"{find.ID}\t{find.Name}\t{find.Email}\t{find.Address}");
         }
 
         public void PlaceNewOrder(Store store)
         {
-            Console.Write("Enter a customer id to order for them: ");
-            string input = Console.ReadLine();
-            int id = int.Parse(input);
+            Outputter.Write("Enter a customer id to order for them: ");
+            int id = Inputter.GetIntegerInput();
             Customer customer = store.GetCustomerByID(id);
+            customer.Cart = new Order(customer, store);
             bool ordering = true;
             while(ordering)
             {
                 int option = 0;
-                while(!(option > 0 && option < 5))
+                while(!(option > 0 && option < 6))
                 {
-                    Console.WriteLine("Choose an action\n[1] Add item to cart\n[2] Remove item from cart\n[3] Show cart\n[4] Submit order\n");
-                    input = Console.ReadLine();
-                    try
-                    {
-                        option = int.Parse(input);
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Invalid input.");
-                    }
+                    Console.WriteLine("Choose an action\n[1] Add item to cart\n[2] Remove item from cart\n[3] Show cart\n[4] Submit order\n[5] Cancel");
+                    option = Inputter.GetIntegerInput();
                 }
                 switch(option)
                 {
                     case 1:
                         store.PrintInventory();
-                        Console.Write("Enter an item to add to cart: ");
-                        string item = Console.ReadLine();
-                        Console.Write("Enter how many you would like: ");
-                        int quantity = int.Parse(Console.ReadLine());
+                        Outputter.Write("Enter an item to add to cart: ");
+                        string item = Inputter.GetStringInput();
+                        Outputter.Write("Enter how many you would like: ");
+                        int quantity = Inputter.GetIntegerInput();
                         Product toAdd = store.GetProductByName(item);
                         customer.AddItemToCart(toAdd, quantity);
-                        Console.WriteLine("Item added successfully!");
+                        Outputter.WriteLine("Item added successfully!");
                         break;
                     case 2:
                         customer.PrintCart();
-                        Console.Write("Enter an item to remove from cart: ");
-                        string item2 = Console.ReadLine();
-                        Console.Write("Enter how many you would like to remove: ");
-                        int quantity2 = int.Parse(Console.ReadLine());
+                        Outputter.Write("Enter an item to remove from cart: ");
+                        string item2 = Inputter.GetStringInput();
+                        Outputter.Write("Enter how many you would like to remove: ");
+                        int quantity2 = Inputter.GetIntegerInput();
                         Product toRemove = store.GetProductByName(item2);
                         customer.RemoveItemFromCart(toRemove, quantity2);
-                        Console.WriteLine("Item removed successfully!");
+                        Outputter.WriteLine("Item removed successfully!");
                         break;
                     case 3:
                         customer.PrintCart();
@@ -165,7 +145,11 @@ namespace Models
                     case 4:
                         ordering = false;
                         customer.SubmitOrder();
-                        Console.WriteLine("Order placed successfully!");
+                        Outputter.WriteLine("Order placed successfully!");
+                        break;
+                    case 5:
+                        ordering = false;
+                        Outputter.WriteLine("Order cancelled.");
                         break;
                 }
             }
@@ -173,16 +157,16 @@ namespace Models
 
         public void DisplayOrderDetails(Store store)
         {
-            Console.Write("Enter the order number to display: ");
-            int orderNumber = int.Parse(Console.ReadLine());
+            Outputter.Write("Enter the order number to display: ");
+            int orderNumber = Inputter.GetIntegerInput();
             Order order = store.GetOrderByID(orderNumber);
             order.DisplayDetails();
         }
 
         public void DisplayCustomerOrders(Store store)
         {
-            Console.Write("Enter a name of a customer to display their orders: ");
-            string name = Console.ReadLine();
+            Outputter.Write("Enter a name of a customer to display their orders: ");
+            string name = Inputter.GetStringInput();
             Customer customer = store.GetCustomerByName(name);
             customer.PrintOrderHistory();
         }
@@ -249,7 +233,7 @@ namespace Models
                     return store;
                 }
             }
-            Console.WriteLine("Store location does not exist.");
+            Outputter.WriteLine("Store location does not exist.");
             return null;
         }
 
@@ -257,7 +241,7 @@ namespace Models
         {
             foreach(var store in Stores)
             {
-                Console.WriteLine(store.Location);
+                Outputter.WriteLine(store.Location);
             }
         }
     }
