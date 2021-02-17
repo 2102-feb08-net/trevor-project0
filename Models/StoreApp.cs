@@ -115,7 +115,7 @@ namespace Models
             Outputter.Write("Enter a customer id to order for them: ");
             int id = Inputter.GetIntegerInput();
             Customer customer = store.GetCustomerByID(id);
-            customer.Cart = new Order(customer, store);
+            Order order = new Order(customer, store);
             bool ordering = true;
             while(ordering)
             {
@@ -134,25 +134,25 @@ namespace Models
                         Outputter.Write("Enter how many you would like: ");
                         int quantity = Inputter.GetIntegerInput();
                         Product toAdd = store.GetProductByName(item);
-                        customer.AddItemToCart(toAdd, quantity);
+                        order.Add(toAdd, quantity);
                         Outputter.WriteLine("Item added successfully!");
                         break;
                     case 2:
-                        customer.PrintCart();
+                        order.DisplayDetails();
                         Outputter.Write("Enter an item to remove from cart: ");
                         string item2 = Inputter.GetStringInput();
                         Outputter.Write("Enter how many you would like to remove: ");
                         int quantity2 = Inputter.GetIntegerInput();
                         Product toRemove = store.GetProductByName(item2);
-                        customer.RemoveItemFromCart(toRemove, quantity2);
+                        order.Delete(toRemove, quantity2);
                         Outputter.WriteLine("Item removed successfully!");
                         break;
                     case 3:
-                        customer.PrintCart();
+                        order.DisplayDetails();
                         break;
                     case 4:
                         ordering = false;
-                        customer.SubmitOrder();
+                        order.SubmitOrder();
                         Outputter.WriteLine("Order placed successfully!");
                         break;
                     case 5:

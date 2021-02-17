@@ -10,7 +10,6 @@ namespace Models
         public string Name {get;}
         public string Email {get;}
         public string Address {get;}
-        public Order Cart {get; set;}
         public List<Order> OrderHistory {get; set;}
 
         public Customer(string name, string email, string address)
@@ -20,41 +19,7 @@ namespace Models
             Name = name;
             Email = email;
             Address = address;
-            Cart = new Order(this, store);
             OrderHistory = new List<Order>();
-        }
-
-        public void AddItemToCart(Product product, int quantity)
-        {
-            Cart.Add(product, quantity);
-        }
-
-        public void RemoveItemFromCart(Product product, int quantity)
-        {
-            Cart.Delete(product, quantity);
-        }
-
-        public void SubmitOrder()
-        {
-            if(Cart.Items.Count == 0)
-            {
-                return;
-            }
-            try
-            {
-                Store.ProcessOrder(Cart);
-                OrderHistory.Add(Cart);
-                Cart = new Order(this, Store);
-            }
-            catch
-            {
-                throw new Exception("Could not process order.");
-            }
-        }
-
-        public void PrintCart()
-        {
-            Cart.DisplayDetails();
         }
 
         public void PrintOrderHistory()

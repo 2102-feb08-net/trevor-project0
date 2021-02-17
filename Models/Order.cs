@@ -63,6 +63,23 @@ namespace Models
             OrderTime = DateTime.Now;
         }
 
+        public void SubmitOrder()
+        {
+            if(Items.Count == 0)
+            {
+                return;
+            }
+            try
+            {
+                Store.ProcessOrder(this);
+                Customer.OrderHistory.Add(this);
+            }
+            catch
+            {
+                throw new Exception("Could not process order.");
+            }
+        }
+
         public void DisplayDetails()
         {
             Console.WriteLine($"Order number: {ID}\nStore: {Store.Name}, {Store.Location}\nCustomer name: {Customer.Name}\nTimestamp: {OrderTime.Date.ToString("d")}");
