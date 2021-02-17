@@ -5,7 +5,7 @@ namespace Models
 {
     public class Customer
     {
-        private static int _idSeed = 1111;
+        private static int _idSeed = 1110;
         public int ID {get; set;}
         public string Name {get;}
         public string Email {get;}
@@ -14,8 +14,7 @@ namespace Models
 
         public Customer(string name, string email, string address)
         {
-            ID = _idSeed;
-            _idSeed++;
+            ID = ++_idSeed;
             Name = name;
             Email = email;
             Address = address;

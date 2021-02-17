@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-//
-// TODO Remove all dependency on Customer and Store class objects. All order modification and submission logic should be performed here.
-//
+
 namespace Models
 {
     public class Order
     {
-        private static int _idSeed = 1111;
+        private static int _idSeed = 1110;
         public int ID {get; set;}
         public Dictionary<Product, int> Items {get; set;}
         public double TotalPrice {get; set;}
@@ -17,8 +15,7 @@ namespace Models
 
         public Order(Customer customer, Store store)
         {
-            ID = _idSeed;
-            _idSeed++;
+            ID = ++_idSeed;
             Items = new Dictionary<Product, int>();
             TotalPrice = 0.0;
             Customer = customer;

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 
-//TODO Search functions involving stores and customers should only depend on the internal list of Stores and Customers seen here!
-
 namespace Models
 {
     public class StoreApp
@@ -34,7 +32,14 @@ namespace Models
                     string location = Inputter.GetStringInput();
                     if(location.ToLower() != "new")
                     {
-                        currentStore = GetStoreByLocation(location, Stores);
+                        try
+                        {
+                            currentStore = GetStoreByLocation(location, Stores);
+                        }
+                        catch(Exception)
+                        {
+                            Outputter.WriteLine("Store location does not exist!");
+                        }
                     }
                     else
                     {
@@ -97,62 +102,97 @@ namespace Models
         {
             Outputter.Write("Enter a customer ID to search for: ");
             int id = Inputter.GetIntegerInput();
-            Customer customer = GetCustomerByID(id);
-            Outputter.WriteLine("Customer found!");
-            Outputter.WriteLine("ID\tName\tEmail\tAddress");
-            Outputter.WriteLine($"{customer.ID}\t{customer.Name}\t{customer.Email}\t{customer.Address}");
+            try
+            {
+                Customer customer = GetCustomerByID(id);
+                Outputter.WriteLine("Customer found!");
+                Outputter.WriteLine("ID\tName\tEmail\tAddress");
+                Outputter.WriteLine($"{customer.ID}\t{customer.Name}\t{customer.Email}\t{customer.Address}");
+            }
+            catch(Exception)
+            {
+                Outputter.WriteLine("Couldn't find customer with that ID.");
+            }
         }
 
         public void PlaceNewOrder(Store store)
         {
             Outputter.Write("Enter a customer id to order for them: ");
             int id = Inputter.GetIntegerInput();
-            Customer customer = GetCustomerByID(id);
-            Order order = new Order(customer, store);
-            bool ordering = true;
-            while(ordering)
+            try
             {
-                int option = 0;
-                while(!(option > 0 && option < 6))
+                Customer customer = GetCustomerByID(id);
+                Order order = new Order(customer, store);
+                bool ordering = true;
+                while(ordering)
                 {
-                    Console.WriteLine("Choose an action\n[1] Add item to cart\n[2] Remove item from cart\n[3] Show cart\n[4] Submit order\n[5] Cancel");
-                    option = Inputter.GetIntegerInput();
+                    int option = 0;
+                    while(!(option > 0 && option < 6))
+                    {
+                        Console.WriteLine("Choose an action\n[1] Add item to cart\n[2] Remove item from cart\n[3] Show cart\n[4] Submit order\n[5] Cancel");
+                        option = Inputter.GetIntegerInput();
+                    }
+                    switch(option)
+                    {
+                        case 1:
+                            PrintInventory(store);
+                            Outputter.Write("Enter an item to add to cart: ");
+                            string item = Inputter.GetStringInput();
+                            Outputter.Write("Enter how many you would like: ");
+                            int quantity = Inputter.GetIntegerInput();
+                            try
+                            {
+                                Product toAdd = store.GetProductByName(item);
+                                order.Add(toAdd, quantity);
+                                Outputter.WriteLine("Item added successfully!");
+                            }
+                            catch(Exception)
+                            {
+                                Outputter.WriteLine("Couldn't find product to add to cart.");
+                            }
+                            break;
+                        case 2:
+                            order.DisplayDetails();
+                            Outputter.Write("Enter an item to remove from cart: ");
+                            string item2 = Inputter.GetStringInput();
+                            Outputter.Write("Enter how many you would like to remove: ");
+                            int quantity2 = Inputter.GetIntegerInput();
+                            try
+                            {
+                                Product toRemove = store.GetProductByName(item2);
+                                order.Delete(toRemove, quantity2);
+                                Outputter.WriteLine("Item removed successfully!");
+                            }
+                            catch(Exception)
+                            {
+                                Outputter.WriteLine("Couldn't find product to remove from cart.");
+                            }
+                            break;
+                        case 3:
+                            order.DisplayDetails();
+                            break;
+                        case 4:
+                            try
+                            {
+                                order.SubmitOrder();
+                                ordering = false;
+                                Outputter.WriteLine("Order placed successfully!");
+                            }
+                            catch(Exception)
+                            {
+                                Outputter.WriteLine("Couldn't process order!");
+                            }
+                            break;
+                        case 5:
+                            ordering = false;
+                            Outputter.WriteLine("Order cancelled.");
+                            break;
+                    }
                 }
-                switch(option)
-                {
-                    case 1:
-                        store.PrintInventory();
-                        Outputter.Write("Enter an item to add to cart: ");
-                        string item = Inputter.GetStringInput();
-                        Outputter.Write("Enter how many you would like: ");
-                        int quantity = Inputter.GetIntegerInput();
-                        Product toAdd = store.GetProductByName(item);
-                        order.Add(toAdd, quantity);
-                        Outputter.WriteLine("Item added successfully!");
-                        break;
-                    case 2:
-                        order.DisplayDetails();
-                        Outputter.Write("Enter an item to remove from cart: ");
-                        string item2 = Inputter.GetStringInput();
-                        Outputter.Write("Enter how many you would like to remove: ");
-                        int quantity2 = Inputter.GetIntegerInput();
-                        Product toRemove = store.GetProductByName(item2);
-                        order.Delete(toRemove, quantity2);
-                        Outputter.WriteLine("Item removed successfully!");
-                        break;
-                    case 3:
-                        order.DisplayDetails();
-                        break;
-                    case 4:
-                        ordering = false;
-                        order.SubmitOrder();
-                        Outputter.WriteLine("Order placed successfully!");
-                        break;
-                    case 5:
-                        ordering = false;
-                        Outputter.WriteLine("Order cancelled.");
-                        break;
-                }
+            }
+            catch(Exception)
+            {
+                Outputter.WriteLine("Couldn't find customer with that ID.");
             }
         }
 
@@ -160,16 +200,30 @@ namespace Models
         {
             Outputter.Write("Enter the order number to display: ");
             int orderNumber = Inputter.GetIntegerInput();
-            Order order = store.GetOrderByID(orderNumber);
-            order.DisplayDetails();
+            try
+            {
+                Order order = store.GetOrderByID(orderNumber);
+                order.DisplayDetails();
+            }
+            catch(Exception)
+            {
+                Outputter.WriteLine("Couldn't find an order with that ID.");
+            }
         }
 
         public void DisplayCustomerOrders()
         {
             Outputter.Write("Enter a customer ID to display their orders: ");
             int id = Inputter.GetIntegerInput();
-            Customer c = GetCustomerByID(id);
-            c.PrintOrderHistory();
+            try
+            {
+                Customer c = GetCustomerByID(id);
+                c.PrintOrderHistory();
+            }
+            catch(Exception)
+            {
+                Outputter.WriteLine("Couldn't find customer with that ID.");
+            }
         }
 
         public void EditInventory(Store store)
@@ -178,9 +232,9 @@ namespace Models
             while(editting)
             {
                 int option = 0;
-                while(!(option > 0 && option < 5))
+                while(!(option > 0 && option < 6))
                 {
-                    Outputter.WriteLine("Select an action:\n[1] Add a new product\n[2] Add inventory for existing product\n[3] Change price of existing product\n[4] Quit back to main menu");
+                    Outputter.WriteLine("Select an action:\n[1] Add a new product\n[2] Add inventory for existing product\n[3] Change price of existing product\n[4] View Inventory\n[5] Quit back to main menu");
                     option = Inputter.GetIntegerInput();
                 }
                 switch(option)
@@ -192,26 +246,50 @@ namespace Models
                         double price = Inputter.GetDoubleInput();
                         Outputter.Write("How many do you want to add to inventory: ");
                         int quantity = Inputter.GetIntegerInput();
-                        store.AddToInventory(new Product(name, price), quantity);
-                        Outputter.WriteLine("Product added to inventory successfully!");
+                        try
+                        {
+                            store.AddToInventory(new Product(name, price), quantity);
+                            Outputter.WriteLine("Product added to inventory successfully!");
+                        }
+                        catch(ArgumentException)
+                        {
+                            Outputter.WriteLine("Couldn't add product to inventory.");
+                        }
                         break;
                     case 2:
                         Outputter.Write("Enter a product ID: ");
-                        Product p = store.GetProductByID(Inputter.GetIntegerInput());
-                        Outputter.Write("How many do you want to add to inventory: ");
-                        int quantity2 = Inputter.GetIntegerInput();
-                        store.AddToInventory(p, quantity2);
-                        Outputter.WriteLine("Product inventory added successfully!");
+                        try
+                        {
+                            Product p = store.GetProductByID(Inputter.GetIntegerInput());
+                            Outputter.Write("How many do you want to add to inventory: ");
+                            int quantity2 = Inputter.GetIntegerInput();
+                            store.AddToInventory(p, quantity2);
+                            Outputter.WriteLine("Product inventory added successfully!");
+                        }
+                        catch(Exception)
+                        {
+                            Outputter.WriteLine("Couldn't add inventory for product.");
+                        }
                         break;
                     case 3:
                         Outputter.Write("Enter a product ID: ");
                         int id = Inputter.GetIntegerInput();
                         Outputter.Write("Enter a new price for the item: ");
                         double price2 = Inputter.GetDoubleInput();
-                        store.UpdateItemPrice(id, price2);
-                        Outputter.WriteLine("Price changed successfully!");
+                        try
+                        {
+                            store.UpdateItemPrice(id, price2);
+                            Outputter.WriteLine("Price changed successfully!");
+                        }
+                        catch(Exception)
+                        {
+                            Outputter.WriteLine("Couldn't change price of product.");
+                        }
                         break;
                     case 4:
+                        PrintInventory(store);
+                        break;
+                    case 5:
                         editting = false;
                         break;
                 }
@@ -227,8 +305,7 @@ namespace Models
                     return store;
                 }
             }
-            Outputter.WriteLine("Store location does not exist.");
-            return null;
+            throw new Exception();
         }
 
         public void PrintStoreLocations(List<Store> Stores)
@@ -236,6 +313,14 @@ namespace Models
             foreach(var store in Stores)
             {
                 Outputter.WriteLine(store.Location);
+            }
+        }
+
+        public void PrintInventory(Store store)
+        {
+            foreach(var item in store.Inventory)
+            {
+                Console.WriteLine($"{item.Key.Name} - ${item.Key.Price} - {item.Value} Available");
             }
         }
 
@@ -248,8 +333,7 @@ namespace Models
                     return customer;
                 }
             }
-            Outputter.WriteLine("Couldn't find customer with that ID.");
-            return null;
+            throw new Exception();
         }
     }
 }

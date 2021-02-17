@@ -5,7 +5,7 @@ namespace Models
 {
     public class Store
     {
-        private static int _idSeed = 1111;
+        private static int _idSeed = 1110;
         public int ID {get; set;}
         public string Name {get;}
         public string Location {get;}
@@ -15,8 +15,7 @@ namespace Models
 
         public Store(string name, string city)
         {
-            ID = _idSeed;
-            _idSeed++;
+            ID = ++_idSeed;
             Name = name;
             Location = city;
             Inventory = new Dictionary<Product, int>();
@@ -40,6 +39,18 @@ namespace Models
             }
         }
 
+        public void DeleteAll(Product product)
+        {
+            if(Inventory.ContainsKey(product))
+            {
+                Inventory.Remove(product);
+            }
+            else
+            {
+                throw new ArgumentException("Item doesn't exist in inventory");
+            }
+        }
+
         public Order GetOrderByID(int id)
         {
             foreach(var order in OrderHistory)
@@ -49,7 +60,7 @@ namespace Models
                     return order;
                 }
             }
-            throw new Exception("No such order.");
+            throw new Exception("Order not found.");
         }
 
         public Product GetProductByName(string name)
@@ -61,7 +72,7 @@ namespace Models
                     return item.Key;
                 }
             }
-            throw new ArgumentException("Item doesn't exist in the inventory.");
+            throw new Exception("Item not found.");
         }
 
         public Product GetProductByID(int id)
@@ -73,26 +84,24 @@ namespace Models
                     return item.Key;
                 }
             }
-            throw new ArgumentException("Item doesn't exist in the inventory.");
+            throw new Exception("Item not found.");
         }
 
         public void UpdateItemPrice(int id, double newPrice)
         {
+            if(newPrice < 0)
+            {
+                throw new ArgumentException("New price cannot be less than 0!");
+            }
             foreach(var item in Inventory)
             {
                 if(item.Key.ID == id)
                 {
                     item.Key.Price = newPrice;
+                    return;
                 }
             }
-        }
-
-        public void PrintInventory()
-        {
-            foreach(var item in Inventory)
-            {
-                Console.WriteLine($"{item.Key.Name} - ${item.Key.Price} - {item.Value} Available");
-            }
+            throw new Exception("Couldn't find item to update.");
         }
 
         public void PrintOrderHistory()
