@@ -232,9 +232,9 @@ namespace Models
             while(editting)
             {
                 int option = 0;
-                while(!(option > 0 && option < 6))
+                while(!(option > 0 && option < 7))
                 {
-                    Outputter.WriteLine("Select an action:\n[1] Add a new product\n[2] Add inventory for existing product\n[3] Change price of existing product\n[4] View Inventory\n[5] Quit back to main menu");
+                    Outputter.WriteLine("Select an action:\n[1] Add a new product\n[2] Add inventory for existing product\n[3] Change price of existing product\n[4] Delete product from inventory\n[5] View Inventory\n[6] Quit back to main menu");
                     option = Inputter.GetIntegerInput();
                 }
                 switch(option)
@@ -287,9 +287,23 @@ namespace Models
                         }
                         break;
                     case 4:
-                        PrintInventory(store);
+                        Outputter.Write("Enter a product ID to remove: ");
+                        int idRemove = Inputter.GetIntegerInput();
+                        try
+                        {
+                            Product toRemove = store.GetProductByID(idRemove);
+                            store.DeleteAll(toRemove);
+                            Outputter.WriteLine("Product successfully removed from inventory!");
+                        }
+                        catch(Exception)
+                        {
+                            Outputter.WriteLine("Couldn't remove product from inventory!");
+                        }
                         break;
                     case 5:
+                        PrintInventory(store);
+                        break;
+                    case 6:
                         editting = false;
                         break;
                 }
