@@ -129,7 +129,7 @@ namespace Models
                     int option = 0;
                     while(!(option > 0 && option < 6))
                     {
-                        Console.WriteLine("Choose an action\n[1] Add item to cart\n[2] Remove item from cart\n[3] Show cart\n[4] Submit order\n[5] Cancel");
+                        Outputter.WriteLine("Choose an action\n[1] Add item to cart\n[2] Remove item from cart\n[3] Show cart\n[4] Submit order\n[5] Cancel");
                         option = Inputter.GetIntegerInput();
                     }
                     switch(option)
@@ -318,9 +318,13 @@ namespace Models
 
         public void PrintInventory(Store store)
         {
+            if(store.Inventory.Count == 0)
+            {
+                Outputter.WriteLine("Inventory is empty.");
+            }
             foreach(var item in store.Inventory)
             {
-                Console.WriteLine($"{item.Key.Name} - ${item.Key.Price} - {item.Value} Available");
+                Outputter.WriteLine($"{item.Key.Name} - ${item.Key.Price} - {item.Value} Available");
             }
         }
 
