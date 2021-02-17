@@ -310,9 +310,16 @@ namespace Models
 
         public void PrintStoreLocations(List<Store> Stores)
         {
-            foreach(var store in Stores)
+            if(Stores.Count == 0)
             {
-                Outputter.WriteLine(store.Location);
+                Outputter.WriteLine("No locations available!");
+            }
+            else
+            {
+                foreach(var store in Stores)
+                {
+                    Outputter.WriteLine(store.Location);
+                }
             }
         }
 
@@ -322,9 +329,12 @@ namespace Models
             {
                 Outputter.WriteLine("Inventory is empty.");
             }
-            foreach(var item in store.Inventory)
+            else
             {
-                Outputter.WriteLine($"{item.Key.Name} - ${item.Key.Price} - {item.Value} Available");
+                foreach(var item in store.Inventory)
+                {
+                    Outputter.WriteLine($"{item.Key.Name} - ${item.Key.Price} - {item.Value} Available");
+                }
             }
         }
 
