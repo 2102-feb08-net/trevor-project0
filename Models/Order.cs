@@ -58,26 +58,30 @@ namespace Models
             }
         }
 
-        public void SetOrderTime()
-        {
-            OrderTime = DateTime.Now;
-        }
-
         public void SubmitOrder()
         {
+            //Make sure order meets criteria to be processed
             if(Items.Count == 0)
             {
                 return;
             }
-            try
+            foreach(var listItem in Items)
             {
-                Store.ProcessOrder(this);
-                Customer.OrderHistory.Add(this);
+                if(!Store.Inventory.ContainsKey(listItem.Key) || listItem.Value > Store.Inventory[listItem.Key])
+                {
+                    throw new Exception("Cannot process this order because item doesn't exist or quantity to order is too high.");
+                }
             }
-            catch
+            //Verified order is OK for processing
+            OrderTime = DateTime.Now;
+            Customer.OrderHistory.Add(this);
+            Store.OrderHistory.Add(this);
+            foreach(var listItem in Items)
             {
-                throw new Exception("Could not process order.");
+                Store.Inventory[listItem.Key] -= listItem.Value;
             }
+            
+            Store.GrossProfit += TotalPrice;
         }
 
         public void DisplayDetails()

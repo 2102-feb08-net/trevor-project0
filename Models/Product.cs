@@ -17,14 +17,5 @@ namespace Models
             Name = name;
             Price = price;
         }
-
-        public void ChangePrice(double newPrice)
-        {
-            if(newPrice < 0)
-            {
-                throw new ArgumentException("New price cannot be less than 0.");
-            }
-            Price = newPrice;
-        }
     }
 }

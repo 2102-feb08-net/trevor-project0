@@ -57,7 +57,7 @@ namespace Models
                         AddNewCustomer();
                         break;
                     case 2:
-                        SearchCustomerByName();
+                        SearchCustomerByID();
                         break;
                     case 3:
                         PlaceNewOrder(currentStore);
@@ -93,28 +93,21 @@ namespace Models
             Outputter.WriteLine("Customer added successfully!");
         }
 
-        public void SearchCustomerByName()
+        public void SearchCustomerByID()
         {
             Outputter.Write("Enter a customer ID to search for: ");
             int id = Inputter.GetIntegerInput();
-            foreach(var customer in Customers)
-            {
-                if(customer.ID == id)
-                {
-                    Outputter.WriteLine("Customer found!");
-                    Outputter.WriteLine("ID\tName\tEmail\tAddress");
-                    Outputter.WriteLine($"{customer.ID}\t{customer.Name}\t{customer.Email}\t{customer.Address}");
-                    return;
-                }
-            }
-            Outputter.WriteLine("Couldn't find customer with that ID.");
+            Customer customer = GetCustomerByID(id);
+            Outputter.WriteLine("Customer found!");
+            Outputter.WriteLine("ID\tName\tEmail\tAddress");
+            Outputter.WriteLine($"{customer.ID}\t{customer.Name}\t{customer.Email}\t{customer.Address}");
         }
 
         public void PlaceNewOrder(Store store)
         {
             Outputter.Write("Enter a customer id to order for them: ");
             int id = Inputter.GetIntegerInput();
-            Customer customer = store.GetCustomerByID(id);
+            Customer customer = GetCustomerByID(id);
             Order order = new Order(customer, store);
             bool ordering = true;
             while(ordering)
@@ -175,15 +168,8 @@ namespace Models
         {
             Outputter.Write("Enter a customer ID to display their orders: ");
             int id = Inputter.GetIntegerInput();
-            foreach(var customer in Customers)
-            {
-                if(customer.ID == id)
-                {
-                    customer.PrintOrderHistory();
-                    return;
-                }
-            }
-            Outputter.WriteLine("Couldn't find customer with that ID.");
+            Customer c = GetCustomerByID(id);
+            c.PrintOrderHistory();
         }
 
         public void EditInventory(Store store)
@@ -219,11 +205,10 @@ namespace Models
                         break;
                     case 3:
                         Outputter.Write("Enter a product ID: ");
-                        Product p2 = store.GetProductByID(Inputter.GetIntegerInput());
+                        int id = Inputter.GetIntegerInput();
                         Outputter.Write("Enter a new price for the item: ");
                         double price2 = Inputter.GetDoubleInput();
-                        p2.ChangePrice(price2);
-                        store.UpdateItemPrice(p2);
+                        store.UpdateItemPrice(id, price2);
                         Outputter.WriteLine("Price changed successfully!");
                         break;
                     case 4:
@@ -252,6 +237,19 @@ namespace Models
             {
                 Outputter.WriteLine(store.Location);
             }
+        }
+
+        public Customer GetCustomerByID(int id)
+        {
+            foreach(var customer in Customers)
+            {
+                if(customer.ID == id)
+                {
+                    return customer;
+                }
+            }
+            Outputter.WriteLine("Couldn't find customer with that ID.");
+            return null;
         }
     }
 }
