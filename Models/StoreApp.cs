@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 
+//TODO Search functions involving stores and customers should only depend on the internal list of Stores and Customers seen here!
+
 namespace Models
 {
     public class StoreApp
@@ -12,6 +14,7 @@ namespace Models
 
         public StoreApp()
         {
+            // These will be replaced with deserialization methods soon
             Inputter = new Inputter();
             Outputter = new Outputter();
             Stores = new List<Store>();
@@ -51,10 +54,10 @@ namespace Models
                 switch(option)
                 {
                     case 1:
-                        AddNewCustomer(currentStore);
+                        AddNewCustomer();
                         break;
                     case 2:
-                        SearchCustomerByName(currentStore);
+                        SearchCustomerByName();
                         break;
                     case 3:
                         PlaceNewOrder(currentStore);
@@ -63,10 +66,10 @@ namespace Models
                         DisplayOrderDetails(currentStore);
                         break;
                     case 5:
-                        DisplayCustomerOrders(currentStore);
+                        DisplayCustomerOrders();
                         break;
                     case 6:
-                        DisplayStoreOrders(currentStore);
+                        currentStore.PrintOrderHistory();
                         break;
                     case 7:
                         EditInventory(currentStore);
@@ -78,7 +81,7 @@ namespace Models
             }
         }
 
-        public void AddNewCustomer(Store store)
+        public void AddNewCustomer()
         {
             Outputter.Write("Enter a name for new customer: ");
             string name = Inputter.GetStringInput();
@@ -86,20 +89,25 @@ namespace Models
             string email = Inputter.GetStringInput();
             Outputter.Write("Enter an address for new customer: ");
             string address = Inputter.GetStringInput();
-            Customer c = new Customer(name, email, address, store);
-            store.AddCustomer(c);
-            Customers.Add(c);
+            Customers.Add(new Customer(name, email, address));
             Outputter.WriteLine("Customer added successfully!");
         }
 
-        public void SearchCustomerByName(Store store)
+        public void SearchCustomerByName()
         {
-            Outputter.Write("Enter a name to search customers: ");
-            string search = Inputter.GetStringInput();
-            Customer find = store.GetCustomerByName(search);
-            Outputter.WriteLine("Customer found!");
-            Outputter.WriteLine("ID\tName\tEmail\tAddress");
-            Outputter.WriteLine($"{find.ID}\t{find.Name}\t{find.Email}\t{find.Address}");
+            Outputter.Write("Enter a customer ID to search for: ");
+            int id = Inputter.GetIntegerInput();
+            foreach(var customer in Customers)
+            {
+                if(customer.ID == id)
+                {
+                    Outputter.WriteLine("Customer found!");
+                    Outputter.WriteLine("ID\tName\tEmail\tAddress");
+                    Outputter.WriteLine($"{customer.ID}\t{customer.Name}\t{customer.Email}\t{customer.Address}");
+                    return;
+                }
+            }
+            Outputter.WriteLine("Couldn't find customer with that ID.");
         }
 
         public void PlaceNewOrder(Store store)
@@ -163,17 +171,19 @@ namespace Models
             order.DisplayDetails();
         }
 
-        public void DisplayCustomerOrders(Store store)
+        public void DisplayCustomerOrders()
         {
-            Outputter.Write("Enter a name of a customer to display their orders: ");
-            string name = Inputter.GetStringInput();
-            Customer customer = store.GetCustomerByName(name);
-            customer.PrintOrderHistory();
-        }
-
-        public void DisplayStoreOrders(Store store)
-        {
-            store.PrintOrderHistory();
+            Outputter.Write("Enter a customer ID to display their orders: ");
+            int id = Inputter.GetIntegerInput();
+            foreach(var customer in Customers)
+            {
+                if(customer.ID == id)
+                {
+                    customer.PrintOrderHistory();
+                    return;
+                }
+            }
+            Outputter.WriteLine("Couldn't find customer with that ID.");
         }
 
         public void EditInventory(Store store)
@@ -196,25 +206,24 @@ namespace Models
                         double price = Inputter.GetDoubleInput();
                         Outputter.Write("How many do you want to add to inventory: ");
                         int quantity = Inputter.GetIntegerInput();
-                        Product p = new Product(name, price);
-                        store.AddToInventory(p, quantity);
+                        store.AddToInventory(new Product(name, price), quantity);
                         Outputter.WriteLine("Product added to inventory successfully!");
                         break;
                     case 2:
                         Outputter.Write("Enter a product ID: ");
-                        Product p2 = store.GetProductByID(Inputter.GetIntegerInput());
+                        Product p = store.GetProductByID(Inputter.GetIntegerInput());
                         Outputter.Write("How many do you want to add to inventory: ");
                         int quantity2 = Inputter.GetIntegerInput();
-                        store.AddToInventory(p2, quantity2);
+                        store.AddToInventory(p, quantity2);
                         Outputter.WriteLine("Product inventory added successfully!");
                         break;
                     case 3:
                         Outputter.Write("Enter a product ID: ");
-                        Product p3 = store.GetProductByID(Inputter.GetIntegerInput());
+                        Product p2 = store.GetProductByID(Inputter.GetIntegerInput());
                         Outputter.Write("Enter a new price for the item: ");
                         double price2 = Inputter.GetDoubleInput();
-                        p3.ChangePrice(price2);
-                        store.UpdateItemPrice(p3);
+                        p2.ChangePrice(price2);
+                        store.UpdateItemPrice(p2);
                         Outputter.WriteLine("Price changed successfully!");
                         break;
                     case 4:

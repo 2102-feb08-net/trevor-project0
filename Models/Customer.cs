@@ -12,9 +12,8 @@ namespace Models
         public string Address {get;}
         public Order Cart {get; set;}
         public List<Order> OrderHistory {get; set;}
-        public Store Store {get; set;}
 
-        public Customer(string name, string email, string address, Store store)
+        public Customer(string name, string email, string address)
         {
             ID = _idSeed;
             _idSeed++;
@@ -23,7 +22,6 @@ namespace Models
             Address = address;
             Cart = new Order(this, store);
             OrderHistory = new List<Order>();
-            Store = store;
         }
 
         public void AddItemToCart(Product product, int quantity)
