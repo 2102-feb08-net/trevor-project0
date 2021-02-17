@@ -218,7 +218,7 @@ namespace Models
         {
             Outputter.WriteLine($"Order number: {order.ID}\nStore: {order.Store.Name}, {order.Store.Location}\nCustomer name: {order.Customer.Name}\nTimestamp: {order.OrderTime.Date.ToString("d")}");
             Outputter.WriteLine("Receipt\n________");
-            foreach(var item in order.Items)
+            foreach(var item in order.GetItems())
             {
                 Outputter.WriteLine($"({item.Value}) {item.Key.Name} ${item.Key.Price*item.Value}");
             }
@@ -365,14 +365,14 @@ namespace Models
 
         public void PrintInventory(Store store)
         {
-            if(store.Inventory.Count == 0)
+            if(store.GetInventory().Count == 0)
             {
                 Outputter.WriteLine("Inventory is empty.");
             }
             else
             {
                 Outputter.WriteLine("ID\t\tName\t\tPrice\t\tQuantity");
-                foreach(var item in store.Inventory)
+                foreach(var item in store.GetInventory())
                 {
                     Outputter.WriteLine($"{item.Key.ID}\t\t{item.Key.Name}\t\t${item.Key.Price}\t\t{item.Value} Available");
                 }
