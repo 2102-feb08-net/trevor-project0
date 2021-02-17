@@ -51,9 +51,9 @@ namespace Models
                     }
                 }
                 int option = 0;
-                while(!(option > 0 && option < 9))
+                while(!(option > 0 && option < 10))
                 {
-                    Outputter.WriteLine("Choose an option:\n[1] Add Customer\n[2] Search Customers\n[3] Place order for customer\n[4] Display order details\n[5] Display customer order history\n[6] Display store order history\n[7] Edit inventory\n[8] Change store locations");
+                    Outputter.WriteLine("Choose an option:\n[1] Add Customer\n[2] Search Customers\n[3] Place order for customer\n[4] Display order details\n[5] Display customer order history\n[6] Display store order history\n[7] Edit inventory\n[8] Change store locations\n[9] Quit");
                     option = Inputter.GetIntegerInput();
                 }
                 switch(option)
@@ -81,6 +81,9 @@ namespace Models
                         break;
                     case 8:
                         currentStore = null;
+                        break;
+                    case 9:
+                        running = false;
                         break;
                 }
             }
@@ -330,6 +333,7 @@ namespace Models
             }
             else
             {
+                Outputter.WriteLine("Available Locations:");
                 foreach(var store in Stores)
                 {
                     Outputter.WriteLine(store.Location);
