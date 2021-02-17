@@ -74,7 +74,7 @@ namespace Models
                         DisplayCustomerOrders();
                         break;
                     case 6:
-                        currentStore.PrintOrderHistory();
+                        PrintStoreOrderHistory(currentStore);
                         break;
                     case 7:
                         EditInventory(currentStore);
@@ -155,7 +155,7 @@ namespace Models
                             }
                             break;
                         case 2:
-                            order.DisplayDetails();
+                            PrintOrder(order);
                             Outputter.Write("Enter an item to remove from cart: ");
                             string item2 = Inputter.GetStringInput();
                             Outputter.Write("Enter how many you would like to remove: ");
@@ -172,7 +172,7 @@ namespace Models
                             }
                             break;
                         case 3:
-                            order.DisplayDetails();
+                            PrintOrder(order);
                             break;
                         case 4:
                             try
@@ -206,12 +206,24 @@ namespace Models
             try
             {
                 Order order = store.GetOrderByID(orderNumber);
-                order.DisplayDetails();
+                PrintOrder(order);
             }
             catch(Exception)
             {
                 Outputter.WriteLine("Couldn't find an order with that ID.");
             }
+        }
+
+        public void PrintOrder(Order order)
+        {
+            Outputter.WriteLine($"Order number: {order.ID}\nStore: {order.Store.Name}, {order.Store.Location}\nCustomer name: {order.Customer.Name}\nTimestamp: {order.OrderTime.Date.ToString("d")}");
+            Outputter.WriteLine("Receipt\n________");
+            foreach(var item in order.Items)
+            {
+                Outputter.WriteLine($"({item.Value}) {item.Key.Name} ${item.Key.Price*item.Value}");
+            }
+            Outputter.WriteLine("________");
+            Outputter.WriteLine($"Total: ${order.TotalPrice}");
         }
 
         public void DisplayCustomerOrders()
@@ -221,11 +233,21 @@ namespace Models
             try
             {
                 Customer c = GetCustomerByID(id);
-                c.PrintOrderHistory();
+                PrintCustomerOrderHistory(c);
             }
             catch(Exception)
             {
                 Outputter.WriteLine("Couldn't find customer with that ID.");
+            }
+        }
+
+        public void PrintCustomerOrderHistory(Customer customer)
+        {
+            Outputter.WriteLine("ID\tDate of Order\t\t\tTotal Price");
+            Outputter.WriteLine("__________________________________________________________________________________________");
+            foreach(var order in customer.OrderHistory)
+            {
+                Outputter.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t{order.TotalPrice}");
             }
         }
 
@@ -349,9 +371,10 @@ namespace Models
             }
             else
             {
+                Outputter.WriteLine("ID\t\tName\t\tPrice\t\tQuantity");
                 foreach(var item in store.Inventory)
                 {
-                    Outputter.WriteLine($"{item.Key.Name} - ${item.Key.Price} - {item.Value} Available");
+                    Outputter.WriteLine($"{item.Key.ID}\t\t{item.Key.Name}\t\t${item.Key.Price}\t\t{item.Value} Available");
                 }
             }
         }
@@ -366,6 +389,16 @@ namespace Models
                 }
             }
             throw new Exception();
+        }
+
+        public void PrintStoreOrderHistory(Store store)
+        {
+            Outputter.WriteLine("ID\tDate of Order\t\t\tTotal Price\t\t\tCustomer");
+            Outputter.WriteLine("__________________________________________________________________________________________");
+            foreach(var order in store.OrderHistory)
+            {
+                Outputter.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t{order.TotalPrice}\t\t\t{order.Customer.Name}");
+            }
         }
     }
 }

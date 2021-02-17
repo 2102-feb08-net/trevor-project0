@@ -20,15 +20,5 @@ namespace Models
             Address = address;
             OrderHistory = new List<Order>();
         }
-
-        public void PrintOrderHistory()
-        {
-            Console.WriteLine("ID\tDate of Order\t\t\tTotal Price");
-            Console.WriteLine("__________________________________________________________________________________________");
-            foreach(var order in OrderHistory)
-            {
-                Console.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t{order.TotalPrice}");
-            }
-        }
     }
 }

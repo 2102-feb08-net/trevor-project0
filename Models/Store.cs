@@ -103,15 +103,5 @@ namespace Models
             }
             throw new Exception("Couldn't find item to update.");
         }
-
-        public void PrintOrderHistory()
-        {
-            Console.WriteLine("ID\tDate of Order\t\t\tTotal Price\t\t\tCustomer");
-            Console.WriteLine("__________________________________________________________________________________________");
-            foreach(var order in OrderHistory)
-            {
-                Console.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t{order.TotalPrice}\t\t\t{order.Customer.Name}");
-            }
-        }
     }
 }
