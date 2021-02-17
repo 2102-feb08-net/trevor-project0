@@ -5,6 +5,10 @@ namespace Models
 {
     public class Inputter : IInputter
     {
+        public string GetAnyInput()
+        {
+            return Console.ReadLine();
+        }
         public string GetStringInput()
         {
             bool flag = true;

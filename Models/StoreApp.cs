@@ -39,7 +39,7 @@ namespace Models
                     else
                     {
                         Outputter.Write("Enter a name for the store: ");
-                        string storeName = Inputter.GetStringInput();
+                        string storeName = Inputter.GetAnyInput();
                         Outputter.Write("Enter the store location: ");
                         string storeLocation = Inputter.GetStringInput();
                         Stores.Add(new Store(storeName, storeLocation));
@@ -86,9 +86,9 @@ namespace Models
             Outputter.Write("Enter a name for new customer: ");
             string name = Inputter.GetStringInput();
             Outputter.Write("Enter an email for new customer: ");
-            string email = Inputter.GetStringInput();
+            string email = Inputter.GetAnyInput();
             Outputter.Write("Enter an address for new customer: ");
-            string address = Inputter.GetStringInput();
+            string address = Inputter.GetAnyInput();
             Customers.Add(new Customer(name, email, address));
             Outputter.WriteLine("Customer added successfully!");
         }
