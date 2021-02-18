@@ -7,7 +7,7 @@ namespace Models
     {
         private static int _idSeed = 1110;
 
-        private Dictionary<Product, int> _items;
+        private Dictionary<int, int> _items;
 
         public int ID {get; set;}
         public double TotalPrice {get; set;}
@@ -18,33 +18,36 @@ namespace Models
         public Order(Customer customer, Store store)
         {
             ID = ++_idSeed;
-            _items = new Dictionary<Product, int>();
+            _items = new Dictionary<int, int>();
             TotalPrice = 0.0;
             Customer = customer;
             Store = store;
         }
 
-        public void Add(Product product, int quantity)
+        public void Add(int productID, int quantity)
         {
-            if(_items.ContainsKey(product))
+            var storeItems = Store.GetInventory();
+            if(quantity > storeItems[productID])
             {
-                _items[product] += quantity;
+                throw new Exception("Cannot more than what is available.");
+            }
+            if(_items.ContainsKey(productID))
+            {
+                _items[productID] += quantity;
             }
             else
             {
-                _items[product] = quantity;
+                _items[productID] = quantity;
             }
-            TotalPrice += product.Price*quantity;
         }
 
-        public void Delete(Product product, int quantity)
+        public void Delete(int productID, int quantity)
         {
-            if(_items.ContainsKey(product))
+            if(_items.ContainsKey(productID))
             {
-                if(_items[product] >= quantity)
+                if(_items[productID] >= quantity)
                 {
-                    _items[product] -= quantity;
-                    TotalPrice -= product.Price*quantity;
+                    _items[productID] -= quantity;
                 }
                 else
                 {
@@ -54,6 +57,24 @@ namespace Models
             else
             {
                 throw new ArgumentException("Product to remove does not exist in cart");
+            }
+        }
+
+        public void CalculateOrderTotal(List<Product> Products)
+        {
+            TotalPrice = 0;
+            if(_items.Count > 0)
+            {
+                foreach(var item in _items)
+                {
+                    foreach(var product in Products)
+                    {
+                        if(item.Key == product.ID)
+                        {
+                            TotalPrice += product.Price*item.Value;
+                        }
+                    }
+                }
             }
         }
 
@@ -73,7 +94,7 @@ namespace Models
             }
         }
 
-        public Dictionary<Product, int> GetItems()
+        public Dictionary<int, int> GetItems()
         {
             return _items;
         }

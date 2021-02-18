@@ -67,6 +67,7 @@ namespace Models
                         SearchCustomerByID();
                         break;
                     case 3:
+                        PrintCustomerList();
                         PlaceNewOrder(currentStore);
                         break;
                     case 4:
@@ -140,32 +141,32 @@ namespace Models
                     switch(option)
                     {
                         case 1:
-                            PrintInventory(store);
+                            PrintInventory(store, order);
                             Outputter.Write("Enter an item to add to cart: ");
-                            string item = Inputter.GetStringInput();
+                            int item = Inputter.GetIntegerInput();
                             Outputter.Write("Enter how many you would like: ");
                             int quantity = Inputter.GetIntegerInput();
                             try
                             {
-                                Product toAdd = store.GetProductByName(item);
-                                order.Add(toAdd, quantity);
+                                GetProductByID(item);
+                                order.Add(item, quantity);
                                 Outputter.WriteLine("Item added successfully!");
                             }
                             catch(Exception)
                             {
-                                Outputter.WriteLine("Couldn't find product to add to cart.");
+                                Outputter.WriteLine("Couldn't find product to add to cart or too much quantity trying to be added.");
                             }
                             break;
                         case 2:
                             PrintOrder(order);
                             Outputter.Write("Enter an item to remove from cart: ");
-                            string item2 = Inputter.GetStringInput();
+                            int item2 = Inputter.GetIntegerInput();
                             Outputter.Write("Enter how many you would like to remove: ");
                             int quantity2 = Inputter.GetIntegerInput();
                             try
                             {
-                                Product toRemove = store.GetProductByName(item2);
-                                order.Delete(toRemove, quantity2);
+                                GetProductByID(item2);
+                                order.Delete(item2, quantity2);
                                 Outputter.WriteLine("Item removed successfully!");
                             }
                             catch(Exception)
@@ -179,6 +180,7 @@ namespace Models
                         case 4:
                             try
                             {
+                                order.CalculateOrderTotal(Products);
                                 order.SubmitOrder();
                                 ordering = false;
                                 Outputter.WriteLine("Order placed successfully!");
@@ -222,9 +224,11 @@ namespace Models
             Outputter.WriteLine("Receipt\n________");
             foreach(var item in order.GetItems())
             {
-                Outputter.WriteLine($"({item.Value}) {item.Key.Name} ${item.Key.Price*item.Value}");
+                Product p = GetProductByID(item.Key);
+                Outputter.WriteLine($"{item.Key} - ({item.Value}) {p.Name} ${p.Price*item.Value}");
             }
             Outputter.WriteLine("________");
+            order.CalculateOrderTotal(Products);
             Outputter.WriteLine($"Total: ${order.TotalPrice}");
         }
 
@@ -245,11 +249,18 @@ namespace Models
 
         public void PrintCustomerOrderHistory(Customer customer)
         {
-            Outputter.WriteLine("ID\tDate of Order\t\t\tTotal Price");
-            Outputter.WriteLine("__________________________________________________________________________________________");
-            foreach(var order in customer.OrderHistory)
+            if(customer.OrderHistory.Count == 0)
             {
-                Outputter.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t{order.TotalPrice}");
+                Outputter.WriteLine("Customer has 0 orders!");
+            }
+            else
+            {
+                Outputter.WriteLine("ID\tDate of Order\t\t\tTotal Price");
+                Outputter.WriteLine("__________________________________________________________________________________________");
+                foreach(var order in customer.OrderHistory)
+                {
+                    Outputter.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t${order.TotalPrice}");
+                }
             }
         }
 
@@ -275,7 +286,9 @@ namespace Models
                         int quantity = Inputter.GetIntegerInput();
                         try
                         {
-                            store.AddToInventory(new Product(name, price), quantity);
+                            Product toAdd = new Product(name, price);
+                            store.AddToInventory(toAdd.ID, quantity);
+                            Products.Add(toAdd);
                             Outputter.WriteLine("Product added to inventory successfully!");
                         }
                         catch(ArgumentException)
@@ -287,10 +300,10 @@ namespace Models
                         Outputter.Write("Enter a product ID: ");
                         try
                         {
-                            Product p = store.GetProductByID(Inputter.GetIntegerInput());
+                            int productID = Inputter.GetIntegerInput();
                             Outputter.Write("How many do you want to add to inventory: ");
                             int quantity2 = Inputter.GetIntegerInput();
-                            store.AddToInventory(p, quantity2);
+                            store.AddToInventory(productID, quantity2);
                             Outputter.WriteLine("Product inventory added successfully!");
                         }
                         catch(Exception)
@@ -305,8 +318,14 @@ namespace Models
                         double price2 = Inputter.GetDoubleInput();
                         try
                         {
-                            store.UpdateItemPrice(id, price2);
-                            Outputter.WriteLine("Price changed successfully!");
+                            foreach(var product in Products)
+                            {
+                                if(product.ID == id)
+                                {
+                                    product.UpdatePrice(price2);
+                                    Outputter.WriteLine("Price changed successfully!");
+                                }
+                            }
                         }
                         catch(Exception)
                         {
@@ -318,8 +337,9 @@ namespace Models
                         int idRemove = Inputter.GetIntegerInput();
                         try
                         {
-                            Product toRemove = store.GetProductByID(idRemove);
-                            store.DeleteAll(toRemove);
+                            store.DeleteAll(idRemove);
+                            Product toRemove = GetProductByID(idRemove);
+                            Products.Remove(toRemove);
                             Outputter.WriteLine("Product successfully removed from inventory!");
                         }
                         catch(Exception)
@@ -376,7 +396,31 @@ namespace Models
                 Outputter.WriteLine("ID\t\tName\t\tPrice\t\tQuantity");
                 foreach(var item in store.GetInventory())
                 {
-                    Outputter.WriteLine($"{item.Key.ID}\t\t{item.Key.Name}\t\t${item.Key.Price}\t\t{item.Value} Available");
+                    Product p = GetProductByID(item.Key);
+                    Outputter.WriteLine($"{p.ID}\t\t{p.Name}\t\t${p.Price}\t\t{item.Value} Available");
+                }
+            }
+        }
+
+        public void PrintInventory(Store store, Order order)
+        {
+            var orderItems = order.GetItems();
+            if(store.GetInventory().Count == 0)
+            {
+                Outputter.WriteLine("Inventory is empty.");
+            }
+            else
+            {
+                Outputter.WriteLine("ID\t\tName\t\tPrice\t\tQuantity");
+                foreach(var item in store.GetInventory())
+                {
+                    Product p = GetProductByID(item.Key);
+                    int inOrder = 0;
+                    if(orderItems.ContainsKey(item.Key))
+                    {
+                        inOrder = orderItems[item.Key];
+                    }
+                    Outputter.WriteLine($"{p.ID}\t\t{p.Name}\t\t${p.Price}\t\t{item.Value-inOrder} Available");
                 }
             }
         }
@@ -393,13 +437,49 @@ namespace Models
             throw new Exception();
         }
 
+        public Product GetProductByID(int id)
+        {
+            foreach(var item in Products)
+            {
+                if(item.ID == id)
+                {
+                    return item;
+                }
+            }
+            throw new Exception("Item not found.");
+        }
+
         public void PrintStoreOrderHistory(Store store)
         {
-            Outputter.WriteLine("ID\tDate of Order\t\t\tTotal Price\t\t\tCustomer");
-            Outputter.WriteLine("__________________________________________________________________________________________");
-            foreach(var order in store.OrderHistory)
+            if(store.OrderHistory.Count == 0)
             {
-                Outputter.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t{order.TotalPrice}\t\t\t{order.Customer.Name}");
+                Outputter.WriteLine("Store has no order history.");
+            }
+            else
+            {
+                Outputter.WriteLine("ID\tDate of Order\t\t\tTotal Price\t\t\tCustomer");
+                Outputter.WriteLine("__________________________________________________________________________________________");
+                foreach(var order in store.OrderHistory)
+                {
+                    Outputter.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t${order.TotalPrice}\t\t\t{order.Customer.Name}");
+                }
+            }
+        }
+
+        public void PrintCustomerList()
+        {
+            if(Customers.Count == 0)
+            {
+                Outputter.WriteLine("No customers in database.");
+            }
+            else
+            {
+                Outputter.WriteLine("ID\tName\t\t\tEmail\t\t\tAddress");
+                Outputter.WriteLine("________________________________________________");
+                foreach(var customer in Customers)
+                {
+                    Outputter.WriteLine($"{customer.ID}\t{customer.Name}\t\t\t{customer.Email}\t\t\t{customer.Address}");
+                }
             }
         }
     }

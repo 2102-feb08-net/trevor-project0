@@ -65,26 +65,14 @@ namespace Models
             throw new Exception("Order not found.");
         }
 
-        public int GetProductByID(int id) // COME BACK TO THIS METHOD. MIGHT NOT BE USEFUL ANYMORE
-        {
-            foreach(var item in _inventory)
-            {
-                if(item.Key == id)
-                {
-                    return item.Key;
-                }
-            }
-            throw new Exception("Item not found.");
-        }
-
         public bool OrderIsValid(Order order)
         {
             var items = order.GetItems();
             foreach(var listItem in items)
             {
-                if(_inventory.ContainsKey(listItem.Key) || listItem.Value > _inventory[listItem.Key])
+                if(!_inventory.ContainsKey(listItem.Key) || listItem.Value > _inventory[listItem.Key])
                 {
-                    return false;
+                    throw new Exception("Order item either does not exist or has too high quantity");
                 }
             }
             return true;
