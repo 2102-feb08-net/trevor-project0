@@ -10,7 +10,6 @@ namespace Models
         private Dictionary<Product, int> _items;
 
         public int ID {get; set;}
-        //public Dictionary<Product, int> Items {get; set;} // make this private field
         public double TotalPrice {get; set;}
         public Customer Customer {get;}
         public Store Store {get; set;}

@@ -9,6 +9,7 @@ namespace Models
         public Outputter Outputter {get;}
         public List<Store> Stores {get; set;}
         public List<Customer> Customers {get; set;}
+        public List<Product> Products {get; set;}
 
         public StoreApp()
         {
@@ -17,6 +18,7 @@ namespace Models
             Outputter = new Outputter();
             Stores = new List<Store>();
             Customers = new List<Customer>();
+            Products = new List<Product>();
         }
         public void Run()
         {

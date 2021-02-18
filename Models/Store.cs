@@ -7,13 +7,12 @@ namespace Models
     {
         private static int _idSeed = 1110;
 
-        private Dictionary<Product, int> _inventory;
+        private Dictionary<int, int> _inventory;
 
         public int ID {get; set;}
         public string Name {get;}
         public string Location {get;}
         public double GrossProfit {get; set;}
-        //public Dictionary<Product, int> Inventory {get; set;} // make private field
         public List<Order> OrderHistory {get; set;}
 
         public Store(string name, string city)
@@ -21,32 +20,32 @@ namespace Models
             ID = ++_idSeed;
             Name = name;
             Location = city;
-            _inventory = new Dictionary<Product, int>();
+            _inventory = new Dictionary<int, int>();
             OrderHistory = new List<Order>();
             GrossProfit = 0.0;
         }
 
-        public void AddToInventory(Product product, int quantity)
+        public void AddToInventory(int productID, int quantity)
         {
             if(quantity < 0)
             {
                 throw new ArgumentException("Quantity cannot be less than 0.");
             }
-            if(_inventory.ContainsKey(product))
+            if(_inventory.ContainsKey(productID))
             {
-                _inventory[product] += quantity;
+                _inventory[productID] += quantity;
             }
             else
             {
-                _inventory[product] = quantity;
+                _inventory[productID] = quantity;
             }
         }
 
-        public void DeleteAll(Product product)
+        public void DeleteAll(int productID)
         {
-            if(_inventory.ContainsKey(product))
+            if(_inventory.ContainsKey(productID))
             {
-                _inventory.Remove(product);
+                _inventory.Remove(productID);
             }
             else
             {
@@ -66,45 +65,16 @@ namespace Models
             throw new Exception("Order not found.");
         }
 
-        public Product GetProductByName(string name)
+        public int GetProductByID(int id) // COME BACK TO THIS METHOD. MIGHT NOT BE USEFUL ANYMORE
         {
             foreach(var item in _inventory)
             {
-                if(item.Key.Name == name)
+                if(item.Key == id)
                 {
                     return item.Key;
                 }
             }
             throw new Exception("Item not found.");
-        }
-
-        public Product GetProductByID(int id)
-        {
-            foreach(var item in _inventory)
-            {
-                if(item.Key.ID == id)
-                {
-                    return item.Key;
-                }
-            }
-            throw new Exception("Item not found.");
-        }
-
-        public void UpdateItemPrice(int id, double newPrice)
-        {
-            if(newPrice < 0)
-            {
-                throw new ArgumentException("New price cannot be less than 0!");
-            }
-            foreach(var item in _inventory)
-            {
-                if(item.Key.ID == id)
-                {
-                    item.Key.Price = newPrice;
-                    return;
-                }
-            }
-            throw new Exception("Couldn't find item to update.");
         }
 
         public bool OrderIsValid(Order order)
@@ -131,7 +101,7 @@ namespace Models
             GrossProfit += order.TotalPrice;
         }
 
-        public Dictionary<Product, int> GetInventory()
+        public Dictionary<int, int> GetInventory()
         {
             return _inventory;
         }
