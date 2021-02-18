@@ -301,6 +301,7 @@ namespace Models
                         try
                         {
                             int productID = Inputter.GetIntegerInput();
+                            GetProductByID(productID);
                             Outputter.Write("How many do you want to add to inventory: ");
                             int quantity2 = Inputter.GetIntegerInput();
                             store.AddToInventory(productID, quantity2);
