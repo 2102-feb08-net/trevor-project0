@@ -5,12 +5,12 @@ using System.Collections.Generic;
 
 namespace DAL
 {
-    public partial class Store
+    public partial class StoreDAL
     {
-        public Store()
+        public StoreDAL()
         {
-            Orders = new HashSet<Order>();
-            StoreItems = new HashSet<StoreItem>();
+            Orders = new HashSet<OrderDAL>();
+            StoreItems = new HashSet<StoreItemDAL>();
         }
 
         public int Id { get; set; }
@@ -19,7 +19,7 @@ namespace DAL
         public string State { get; set; }
         public decimal Profit { get; set; }
 
-        public virtual ICollection<Order> Orders { get; set; }
-        public virtual ICollection<StoreItem> StoreItems { get; set; }
+        public virtual ICollection<OrderDAL> Orders { get; set; }
+        public virtual ICollection<StoreItemDAL> StoreItems { get; set; }
     }
 }

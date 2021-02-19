@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace DAL
 {
-    public partial class Order
+    public partial class OrderDAL
     {
-        public Order()
+        public OrderDAL()
         {
-            OrderItems = new HashSet<OrderItem>();
+            OrderItems = new HashSet<OrderItemDAL>();
         }
 
         public int Id { get; set; }
@@ -18,8 +18,8 @@ namespace DAL
         public decimal TotalPrice { get; set; }
         public DateTime OrderTime { get; set; }
 
-        public virtual Customer Customer { get; set; }
-        public virtual Store Store { get; set; }
-        public virtual ICollection<OrderItem> OrderItems { get; set; }
+        public virtual CustomerDAL Customer { get; set; }
+        public virtual StoreDAL Store { get; set; }
+        public virtual ICollection<OrderItemDAL> OrderItems { get; set; }
     }
 }

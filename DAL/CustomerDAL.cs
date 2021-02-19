@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace DAL
 {
-    public partial class Customer
+    public partial class CustomerDAL
     {
-        public Customer()
+        public CustomerDAL()
         {
-            Orders = new HashSet<Order>();
+            Orders = new HashSet<OrderDAL>();
         }
 
         public int Id { get; set; }
@@ -18,6 +18,6 @@ namespace DAL
         public string Email { get; set; }
         public string Address { get; set; }
 
-        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<OrderDAL> Orders { get; set; }
     }
 }
