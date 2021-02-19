@@ -13,7 +13,6 @@ namespace Models
 
         public StoreApp()
         {
-            // These will be replaced with deserialization methods soon
             Inputter = new Inputter();
             Outputter = new Outputter();
             Stores = new List<Store>();

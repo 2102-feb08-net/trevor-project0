@@ -7,7 +7,10 @@ namespace Models
     {
         public static void Main(string[] args)
         {
-            StoreApp storeApp = new StoreApp();
+            //StoreApp storeApp = new StoreApp();
+            //storeApp.Run();
+
+            SQLStoreApp storeApp = new SQLStoreApp();
             storeApp.Run();
         }
     }
