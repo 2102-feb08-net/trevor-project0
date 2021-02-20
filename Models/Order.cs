@@ -11,7 +11,7 @@ namespace Models
 
         public int ID {get; set;}
         public double TotalPrice {get; set;}
-        public Customer Customer {get;}
+        public Customer Customer { get; set; }
         public Store Store {get; set;}
         public DateTime OrderTime {get; set;}
 

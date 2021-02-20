@@ -10,7 +10,6 @@ namespace Models
         public string Name {get;}
         public string Email {get;}
         public string Address {get;}
-        public List<Order> OrderHistory {get; set;}
 
         public Customer(string name, string email, string address)
         {
@@ -18,7 +17,6 @@ namespace Models
             Name = name;
             Email = email;
             Address = address;
-            OrderHistory = new List<Order>();
         }
     }
 }

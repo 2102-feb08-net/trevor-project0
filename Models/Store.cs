@@ -10,19 +10,22 @@ namespace Models
         private Dictionary<int, int> _inventory;
 
         public int ID {get; set;}
-        public string Name {get;}
-        public string Location {get;}
+        public string Name { get; set; }
+        public string Location { get; set; }
         public double GrossProfit {get; set;}
-        public List<Order> OrderHistory {get; set;}
 
-        public Store(string name, string city)
+        public Store(string name, string location)
         {
             ID = ++_idSeed;
             Name = name;
-            Location = city;
+            Location = location;
             _inventory = new Dictionary<int, int>();
-            OrderHistory = new List<Order>();
             GrossProfit = 0.0;
+        }
+
+        public Store()
+        {
+
         }
 
         public void AddToInventory(int productID, int quantity)
@@ -53,18 +56,6 @@ namespace Models
             }
         }
 
-        public Order GetOrderByID(int id)
-        {
-            foreach(var order in OrderHistory)
-            {
-                if(order.ID == id)
-                {
-                    return order;
-                }
-            }
-            throw new Exception("Order not found.");
-        }
-
         public bool OrderIsValid(Order order)
         {
             var items = order.GetItems();
@@ -80,7 +71,6 @@ namespace Models
 
         public void ProcessOrder(Order order)
         {
-            OrderHistory.Add(order);
             var items = order.GetItems();
             foreach(var listItem in items)
             {
