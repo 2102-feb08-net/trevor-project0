@@ -35,6 +35,12 @@ namespace Models
         void UpdateProduct(Product product);
 
         /// <summary>
+        /// Delete a product from the database
+        /// </summary>
+        /// <param name="product">Product to delete</param>
+        void DeleteProduct(Product product);
+
+        /// <summary>
         /// Commit changes to database
         /// </summary>
         void Save();
