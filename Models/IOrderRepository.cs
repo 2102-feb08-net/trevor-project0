@@ -36,11 +36,47 @@ namespace Models
         void AddOrder(Order order);
 
         /// <summary>
-        /// Get the product items mapped to quantities for an order
+        /// Adds a new product to an order
         /// </summary>
-        /// <param name="order">Order to grab items for</param>
-        /// <returns>Dictionary of Product-Quantity pairs</returns>
-        Dictionary<Product, int> GetOrderItems(Order order);
+        /// <param name="product">Product to add</param>
+        /// <param name="order">Order to add product to</param>
+        void AddOrderItem(Product product, Order order, int quantity);
+
+        /// <summary>
+        /// Returns the set of products/quantities associated with an order
+        /// </summary>
+        /// <param name="orderId">Order to get Items for</param>
+        /// <returns></returns>
+        public Dictionary<Product, int> GetOrderItems(int orderId);
+
+        /// <summary>
+        /// Get the store associated with an order
+        /// </summary>
+        /// <param name="orderId">Order ID</param>
+        /// <returns></returns>
+        public Store GetStore(int orderId);
+
+        /// <summary>
+        /// Get the customer associated with an order
+        /// </summary>
+        /// <param name="orderId">Order ID</param>
+        /// <returns></returns>
+        public Customer GetCustomer(int orderId);
+
+        /// <summary>
+        /// Update order item information including item name, price or quantity
+        /// </summary>
+        /// <param name="product">Product on order to edit</param>
+        /// <param name="order">Order to edit</param>
+        /// <param name="quantity">Optional number to edit quantity on the order</param>
+        void UpdateOrderItemQuantity(Product product, Order order, int quantity);
+
+        /// <summary>
+        /// Remove a product from an order
+        /// </summary>
+        /// <param name="product">Product to remove</param>
+        /// <param name="order">Order to remove from</param>
+        void RemoveOrderItem(Product product, Order order);
 
         /// <summary>
         /// Commit changes to database

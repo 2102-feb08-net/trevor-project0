@@ -36,6 +36,13 @@ namespace DAL
 
         public void AddToInventory(Product product, Store store, int quantity)
         {
+            //Check store and product exist
+            StoreDAL s = _context.Stores.Find(store.ID);
+            ProductDAL p = _context.Products.Find(product.ID);
+            if(s == null || p == null)
+            {
+                throw new Exception("Product or store does not exist in database");
+            }
             ProductDAL newProduct = new ProductDAL
             {
                 Id = product.ID,
