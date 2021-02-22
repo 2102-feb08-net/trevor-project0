@@ -58,13 +58,6 @@ namespace Models
         void RemoveItemFromInventory(Product product, Store store);
 
         /// <summary>
-        /// Get the inventory for a store
-        /// </summary>
-        /// <param name="storeId">Store ID to get inventory for</param>
-        /// <returns>Dictionary of Product-Quantity pairs</returns>
-        Dictionary<Product, int> GetInventory(int storeId);
-
-        /// <summary>
         /// Commit changes to database
         /// </summary>
         void Save();

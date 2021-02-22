@@ -20,6 +20,13 @@ namespace Models
             Price = price;
         }
 
+        public Product(int id, string name, double price)
+        {
+            ID = id;
+            Name = name;
+            Price = price;
+        }
+
         public void UpdatePrice(double price)
         {
             if(price < 0)

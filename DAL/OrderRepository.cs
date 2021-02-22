@@ -44,39 +44,45 @@ namespace DAL
             _context.Add(toAdd);
         }
 
-        public Dictionary<Product, int> GetOrderItems(int orderId)
+        public Order GetOrderByID(int id)
         {
-            OrderDAL query = _context.Orders
+            var query = _context.Orders
                 .Include(o => o.OrderItems)
                     .ThenInclude(p => p.Product)
-                .First(o => o.Id == orderId);
-
-            if (query != null)
+                .Include(o => o.Store)
+                .Include(o => o.Customer)
+                .First(o => o.Id == id);
+            if(query != null)
             {
                 var inventory = query.OrderItems.Select(
                     x => new KeyValuePair<Product, int>(
-                    new Product(x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
-                return inventory.ToDictionary(x => x.Key, y => y.Value);
-            }
-            else
-            {
-                return new Dictionary<Product, int>();
-            }
-        }
-
-        public Order GetOrderByID(int id)
-        {
-            var query = _context.Orders.Find(id);
-            if(query != null)
-            {
+                    new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
+               
                 return new Order
                 {
                     ID = query.Id,
-                    Store = GetStore(id),
-                    Customer = GetCustomer(id),
+                    Store = new Store
+                    {
+                        ID = query.Store.Id,
+                        Name = query.Store.Name,
+                        City = query.Store.City,
+                        State = query.Store.State,
+                        GrossProfit = decimal.ToDouble(query.Store.Profit),
+                        Inventory = query.Store.StoreItems.Select(
+                                x => new KeyValuePair<Product, int>(
+                                new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList().ToDictionary(x => x.Key, y => y.Value)
+                    },
+                    Customer = new Customer
+                    {
+                        ID = query.Customer.Id,
+                        FirstName = query.Customer.FirstName,
+                        LastName = query.Customer.LastName,
+                        Email = query.Customer.Email,
+                        Address = query.Customer.Address
+                    },
                     TotalPrice = decimal.ToDouble(query.TotalPrice),
                     OrderTime = query.OrderTime,
-                    Items = GetOrderItems(id)
+                    Items = inventory.ToDictionary(x => x.Key, y => y.Value)
                 };
             }
             else
@@ -87,18 +93,48 @@ namespace DAL
 
         public IEnumerable<Order> GetOrdersByCustomerID(int customerID)
         {
-            var query = _context.Orders.Where(o => o.CustomerId == customerID).ToList();
+            List<Order> orders = new List<Order>();
+            var query = _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(p => p.Product)
+                .Include(o => o.Store)
+                .Include(o => o.Customer)
+                .Where(o => o.CustomerId == customerID).ToList();
             if(query != null)
             {
-                return query.Select(o => new Order
+                foreach(var order in query)
                 {
-                    ID = o.Id,
-                    Store = GetStore(o.Id),
-                    Customer = GetCustomer(o.Id),
-                    TotalPrice = decimal.ToDouble(o.TotalPrice),
-                    OrderTime = o.OrderTime,
-                    Items = GetOrderItems(o.Id)
-                });
+                    var items = order.OrderItems.Select(
+                    x => new KeyValuePair<Product, int>(
+                    new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
+                    orders.Add(new Order
+                    {
+                        ID = order.Id,
+                        Store = new Store
+                        {
+                            ID = order.Store.Id,
+                            Name = order.Store.Name,
+                            City = order.Store.City,
+                            State = order.Store.State,
+                            GrossProfit = decimal.ToDouble(order.Store.Profit),
+                            Inventory = order.Store.StoreItems.Select(
+                                x => new KeyValuePair<Product, int>(
+                                new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList().ToDictionary(x => x.Key, y => y.Value)
+                        },
+                        Customer = new Customer
+                        {
+                            ID = order.Customer.Id,
+                            FirstName = order.Customer.FirstName,
+                            LastName = order.Customer.LastName,
+                            Email = order.Customer.Email,
+                            Address = order.Customer.Address
+                        },
+                        TotalPrice = decimal.ToDouble(order.TotalPrice),
+                        OrderTime = order.OrderTime,
+                        Items = items.ToDictionary(x => x.Key, y => y.Value)
+                    });
+                }
+                return orders;
             }
             else
             {
@@ -108,22 +144,52 @@ namespace DAL
 
         public IEnumerable<Order> GetOrdersByStoreID(int storeId)
         {
-            var query = _context.Orders.Where(o => o.StoreId == storeId).ToList();
+            List<Order> orders = new List<Order>();
+            var query = _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(p => p.Product)
+                .Include(o => o.Store)
+                .Include(o => o.Customer)
+                .Where(o => o.StoreId == storeId).ToList();
             if (query != null)
             {
-                return query.Select(o => new Order
+                foreach (var order in query)
                 {
-                    ID = o.Id,
-                    Store = GetStore(o.Id),
-                    Customer = GetCustomer(o.Id),
-                    TotalPrice = decimal.ToDouble(o.TotalPrice),
-                    OrderTime = o.OrderTime,
-                    Items = GetOrderItems(o.Id)
-                });
+                    var items = order.OrderItems.Select(
+                    x => new KeyValuePair<Product, int>(
+                    new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
+                    orders.Add(new Order
+                    {
+                        ID = order.Id,
+                        Store = new Store
+                        {
+                            ID = order.Store.Id,
+                            Name = order.Store.Name,
+                            City = order.Store.City,
+                            State = order.Store.State,
+                            GrossProfit = decimal.ToDouble(order.Store.Profit),
+                            Inventory = order.Store.StoreItems.Select(
+                                x => new KeyValuePair<Product, int>(
+                                new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList().ToDictionary(x => x.Key, y => y.Value)
+                        },
+                        Customer = new Customer
+                        {
+                            ID = order.Customer.Id,
+                            FirstName = order.Customer.FirstName,
+                            LastName = order.Customer.LastName,
+                            Email = order.Customer.Email,
+                            Address = order.Customer.Address
+                        },
+                        TotalPrice = decimal.ToDouble(order.TotalPrice),
+                        OrderTime = order.OrderTime,
+                        Items = items.ToDictionary(x => x.Key, y => y.Value)
+                    });
+                }
+                return orders;
             }
             else
             {
-                throw new Exception("Couldn't find any orders for store with that ID");
+                throw new Exception("Couldn't find any orders for customer with that ID");
             }
         }
 

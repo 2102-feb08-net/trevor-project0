@@ -58,31 +58,19 @@ namespace DAL
             _context.Add(newInventoryItem);
         }
 
-        public Dictionary<Product, int> GetInventory(int storeId)
+        public Store GetStoreByID(int id)
         {
             StoreDAL query = _context.Stores
                 .Include(s => s.StoreItems)
                     .ThenInclude(p => p.Product)
-                .First(s => s.Id == storeId);
+                 .First(s => s.Id == id);
 
             if(query != null)
             {
                 var inventory = query.StoreItems.Select(
                     x => new KeyValuePair<Product, int>(
-                    new Product(x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
-                return inventory.ToDictionary(x => x.Key, y => y.Value);
-            }
-            else
-            {
-                return new Dictionary<Product, int>();
-            }
-        }
-
-        public Store GetStoreByID(int id)
-        {
-            StoreDAL query = _context.Stores.Find(id);
-            if(query != null)
-            {
+                    new Product(x.Product.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
+               
                 return new Store
                 {
                     ID = query.Id,
@@ -90,7 +78,7 @@ namespace DAL
                     City = query.City,
                     State = query.State,
                     GrossProfit = decimal.ToDouble(query.Profit),
-                    Inventory = GetInventory(id)
+                    Inventory = inventory.ToDictionary(x => x.Key, y => y.Value)
                 };
             }
             else
@@ -101,20 +89,30 @@ namespace DAL
 
         public IEnumerable<Store> GetStores(string search = null)
         {
-            IQueryable<StoreDAL> query = _context.Stores;
+            List<Store> stores = new List<Store>();
+            IQueryable<StoreDAL> query = _context.Stores
+                .Include(s => s.StoreItems)
+                    .ThenInclude(p => p.Product);
             if(search != null)
             {
                 query = query.Where(x => x.Name.Contains(search));
             }
-            return query.Select(s => new Store
+            foreach(var store in query)
             {
-                ID = s.Id,
-                Name = s.Name,
-                City = s.City,
-                State = s.State,
-                GrossProfit = decimal.ToDouble(s.Profit),
-                Inventory = GetInventory(s.Id)
-            });
+                var inventory = store.StoreItems.Select(
+                    x => new KeyValuePair<Product, int>(
+                    new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
+                stores.Add(new Store
+                {
+                    ID = store.Id,
+                    Name = store.Name,
+                    City = store.City,
+                    State = store.State,
+                    GrossProfit = decimal.ToDouble(store.Profit),
+                    Inventory = inventory.ToDictionary(x => x.Key, y => y.Value)
+                });
+            }
+            return stores;
         }
 
         public void RemoveItemFromInventory(Product product, Store store)

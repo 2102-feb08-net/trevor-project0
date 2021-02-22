@@ -48,14 +48,14 @@ namespace UI
             {
                 while(currentStore == null)
                 {
-                    PrintStoreLocations(Stores);
+                    PrintStoreLocations();
                     Outputter.Write("Enter a store ID to shop from or type '0' to add a new location: ");
                     int location = Inputter.GetIntegerInput();
                     if(location != 0)
                     {
                         try
                         {
-                            currentStore = GetStoreByID(location, Stores);
+                            currentStore = StoreRepo.GetStoreByID(location);
                         }
                         catch(Exception)
                         {
@@ -72,6 +72,7 @@ namespace UI
                         string storeState = Inputter.GetStringInput();
                         Stores.Add(new Store(storeName, storeCity, storeState));
                         StoreRepo.AddStore(new Store(storeName, storeCity, storeState));
+                        StoreRepo.Save();
                     }
                 }
                 int option = 0;
@@ -325,6 +326,8 @@ namespace UI
                         {
                             Product toAdd = new Product(name, price);
                             ProductRepo.AddProduct(toAdd);
+                            ProductRepo.Save();
+                            toAdd = ProductRepo.GetProductByNameAndPrice(name, Convert.ToDecimal(price)); // This is necessary to get the ID of the product we just added
                             store.AddToInventory(toAdd, quantity);
                             StoreRepo.AddToInventory(toAdd, store, quantity);
                             Outputter.WriteLine("Product added to inventory successfully!");
@@ -335,6 +338,7 @@ namespace UI
                         }
                         break;
                     case 2:
+                        PrintInventory(store.ID);
                         Outputter.Write("Enter a product ID: ");
                         try
                         {
@@ -351,6 +355,7 @@ namespace UI
                         }
                         break;
                     case 3:
+                        PrintInventory(store.ID);
                         Outputter.Write("Enter a product ID to remove: ");
                         int idRemove = Inputter.GetIntegerInput();
                         try
@@ -365,7 +370,7 @@ namespace UI
                         }
                         break;
                     case 4:
-                        PrintInventory(store);
+                        PrintInventory(store.ID);
                         break;
                     case 5:
                         editting = false;
@@ -388,24 +393,26 @@ namespace UI
             throw new Exception();
         }
 
-        public void PrintStoreLocations(List<Store> stores)
+        public void PrintStoreLocations()
         {
-            if(stores.Count == 0)
+            List<Store> s = StoreRepo.GetStores().ToList();
+            if(s.Count == 0)
             {
                 Outputter.WriteLine("No locations available!");
             }
             else
             {
                 Outputter.WriteLine("Available Locations:");
-                foreach(var store in stores)
+                foreach(var store in s)
                 {
                     Outputter.WriteLine($"{store.ID} - {store.Name} in {store.City}, {store.State}");
                 }
             }
         }
 
-        public void PrintInventory(Store store)
+        public void PrintInventory(int storeID)
         {
+            Store store = StoreRepo.GetStoreByID(storeID);
             if(store.Inventory.Count == 0)
             {
                 Outputter.WriteLine("Inventory is empty.");

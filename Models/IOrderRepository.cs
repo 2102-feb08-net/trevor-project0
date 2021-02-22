@@ -49,13 +49,6 @@ namespace Models
         void AddOrderItem(Product product, Order order, int quantity);
 
         /// <summary>
-        /// Returns the set of products/quantities associated with an order
-        /// </summary>
-        /// <param name="orderId">Order to get Items for</param>
-        /// <returns></returns>
-        public Dictionary<Product, int> GetOrderItems(int orderId);
-
-        /// <summary>
         /// Get the store associated with an order
         /// </summary>
         /// <param name="orderId">Order ID</param>

@@ -61,6 +61,24 @@ namespace DAL
             }
         }
 
+        public Product GetProductByNameAndPrice(string name, decimal p)
+        {
+            var query = _context.Products.Where(x => x.Name.Contains(name) && x.Price == p).First();
+            if(query != null)
+            {
+                return new Product
+                {
+                    ID = query.Id,
+                    Name = query.Name,
+                    Price = decimal.ToDouble(query.Price)
+                };
+            }
+            else
+            {
+                throw new Exception("Couldn't find product with that name and price");
+            }
+        }
+
         public IEnumerable<Product> GetProducts(string search = null)
         {
             IQueryable<ProductDAL> query = _context.Products;

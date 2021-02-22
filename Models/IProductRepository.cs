@@ -23,6 +23,14 @@ namespace Models
         Product GetProductByID(int id);
 
         /// <summary>
+        /// Returns a product related to composite key of (name,price)
+        /// </summary>
+        /// <param name="name">Name of product</param>
+        /// <param name="p">Price of product</param>
+        /// <returns>Product</returns>
+        Product GetProductByNameAndPrice(string name, decimal p);
+
+        /// <summary>
         /// Add a product to the database
         /// </summary>
         /// <param name="product">Product to add</param>
