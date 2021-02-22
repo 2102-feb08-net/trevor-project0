@@ -7,7 +7,7 @@ namespace Models
     {
         private static int _idSeed = 1110;
 
-        private Dictionary<int, int> _items;
+        public Dictionary<Product, int> Items;
 
         public int ID {get; set;}
         public double TotalPrice {get; set;}
@@ -15,39 +15,44 @@ namespace Models
         public Store Store {get; set;}
         public DateTime OrderTime {get; set;}
 
+        public Order()
+        {
+
+        }
+
         public Order(Customer customer, Store store)
         {
             ID = ++_idSeed;
-            _items = new Dictionary<int, int>();
+            Items = new Dictionary<Product, int>();
             TotalPrice = 0.0;
             Customer = customer;
             Store = store;
         }
 
-        public void Add(int productID, int quantity)
+        public void Add(Product product, int quantity)
         {
-            var storeItems = Store.GetInventory();
-            if(quantity > storeItems[productID])
+            var storeItems = Store.Inventory;
+            if(quantity > storeItems[product])
             {
                 throw new Exception("Cannot more than what is available.");
             }
-            if(_items.ContainsKey(productID))
+            if(Items.ContainsKey(product))
             {
-                _items[productID] += quantity;
+                Items[product] += quantity;
             }
             else
             {
-                _items[productID] = quantity;
+                Items[product] = quantity;
             }
         }
 
-        public void Delete(int productID, int quantity)
+        public void Delete(Product product, int quantity)
         {
-            if(_items.ContainsKey(productID))
+            if(Items.ContainsKey(product))
             {
-                if(_items[productID] >= quantity)
+                if(Items[product] >= quantity)
                 {
-                    _items[productID] -= quantity;
+                    Items[product] -= quantity;
                 }
                 else
                 {
@@ -63,13 +68,13 @@ namespace Models
         public void CalculateOrderTotal(List<Product> Products)
         {
             TotalPrice = 0;
-            if(_items.Count > 0)
+            if(Items.Count > 0)
             {
-                foreach(var item in _items)
+                foreach(var item in Items)
                 {
                     foreach(var product in Products)
                     {
-                        if(item.Key == product.ID)
+                        if(item.Key == product)
                         {
                             TotalPrice += product.Price*item.Value;
                         }
@@ -81,7 +86,7 @@ namespace Models
         public void SubmitOrder()
         {
             //Make sure order meets criteria to be processed
-            if(_items.Count == 0)
+            if(Items.Count == 0)
             {
                 return;
             }
@@ -89,14 +94,8 @@ namespace Models
             {
                 //Verified order is OK for processing
                 OrderTime = DateTime.Now;
-                Customer.OrderHistory.Add(this);
                 Store.ProcessOrder(this);
             }
-        }
-
-        public Dictionary<int, int> GetItems()
-        {
-            return _items;
         }
     }
 }

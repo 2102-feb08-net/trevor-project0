@@ -23,7 +23,7 @@ namespace Models
         Store GetStoreByID(int id);
 
         /// <summary>
-        /// Adds a new store to the database.
+        /// Adds a new store to the database along with associated inventory/products.
         /// </summary>
         /// <param name="store">Store to be added</param>
         void AddStore(Store store);
@@ -48,7 +48,7 @@ namespace Models
         /// <param name="update">Product to update</param>
         /// <param name="store">Store to update inventory</param>
         /// <param name="quantity">Number to add to inventory</param>
-        void UpdateItemAmount(Product product, Store store, int quantity);
+        void UpdateItemQuantity(Product product, Store store, int quantity);
 
         /// <summary>
         /// Remove an item from a stores inventory
@@ -60,9 +60,9 @@ namespace Models
         /// <summary>
         /// Get the inventory for a store
         /// </summary>
-        /// <param name="store">Store to get inventory for</param>
+        /// <param name="storeId">Store ID to get inventory for</param>
         /// <returns>Dictionary of Product-Quantity pairs</returns>
-        Dictionary<Product, int> GetInventory(Store store);
+        Dictionary<Product, int> GetInventory(int storeId);
 
         /// <summary>
         /// Commit changes to database

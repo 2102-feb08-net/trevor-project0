@@ -7,19 +7,21 @@ namespace Models
     {
         private static int _idSeed = 1110;
 
-        private Dictionary<int, int> _inventory;
+        public Dictionary<Product, int> Inventory;
 
         public int ID {get; set;}
         public string Name { get; set; }
-        public string Location { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
         public double GrossProfit {get; set;}
 
-        public Store(string name, string location)
+        public Store(string name, string city, string state)
         {
             ID = ++_idSeed;
             Name = name;
-            Location = location;
-            _inventory = new Dictionary<int, int>();
+            City = city;
+            State = state;
+            Inventory = new Dictionary<Product, int>();
             GrossProfit = 0.0;
         }
 
@@ -28,27 +30,27 @@ namespace Models
 
         }
 
-        public void AddToInventory(int productID, int quantity)
+        public void AddToInventory(Product product, int quantity)
         {
             if(quantity < 0)
             {
                 throw new ArgumentException("Quantity cannot be less than 0.");
             }
-            if(_inventory.ContainsKey(productID))
+            if(Inventory.ContainsKey(product))
             {
-                _inventory[productID] += quantity;
+                Inventory[product] += quantity;
             }
             else
             {
-                _inventory[productID] = quantity;
+                Inventory[product] = quantity;
             }
         }
 
-        public void DeleteAll(int productID)
+        public void DeleteAll(Product product)
         {
-            if(_inventory.ContainsKey(productID))
+            if(Inventory.ContainsKey(product))
             {
-                _inventory.Remove(productID);
+                Inventory.Remove(product);
             }
             else
             {
@@ -58,10 +60,10 @@ namespace Models
 
         public bool OrderIsValid(Order order)
         {
-            var items = order.GetItems();
+            var items = order.Items;
             foreach(var listItem in items)
             {
-                if(!_inventory.ContainsKey(listItem.Key) || listItem.Value > _inventory[listItem.Key])
+                if(!Inventory.ContainsKey(listItem.Key) || listItem.Value > Inventory[listItem.Key])
                 {
                     throw new Exception("Order item either does not exist or has too high quantity");
                 }
@@ -71,17 +73,12 @@ namespace Models
 
         public void ProcessOrder(Order order)
         {
-            var items = order.GetItems();
+            var items = order.Items;
             foreach(var listItem in items)
             {
-                _inventory[listItem.Key] -= listItem.Value;
+                Inventory[listItem.Key] -= listItem.Value;
             }
             GrossProfit += order.TotalPrice;
-        }
-
-        public Dictionary<int, int> GetInventory()
-        {
-            return _inventory;
         }
     }
 }
