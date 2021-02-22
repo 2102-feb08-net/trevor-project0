@@ -7,7 +7,8 @@ namespace Models
     {
         private static int _idSeed = 1110;
         public int ID {get; set;}
-        public string Name { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string Email { get; set; }
         public string Address { get; set; }
 
@@ -16,10 +17,11 @@ namespace Models
 
         }
 
-        public Customer(string name, string email, string address)
+        public Customer(string firstName, string lastName, string email, string address)
         {
             ID = ++_idSeed;
-            Name = name;
+            FirstName = firstName;
+            LastName = lastName;
             Email = email;
             Address = address;
         }

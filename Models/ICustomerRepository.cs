@@ -13,7 +13,7 @@ namespace Models
         /// </summary>
         /// <param name="name">Optional parameter to search by name</param>
         /// <returns>List of customers</returns>
-        IEnumerable<Customer> GetCustomers(string name = null);
+        IEnumerable<Customer> GetCustomers(string firstName = null, string lastName = null);
 
         /// <summary>
         /// Get a customer by ID
