@@ -1,7 +1,12 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Models;
+using DAL;
+using System.IO;
 
-namespace Models
+namespace UI
 {
     public class StoreApp
     {
@@ -10,14 +15,29 @@ namespace Models
         public List<Store> Stores {get; set;}
         public List<Customer> Customers {get; set;}
         public List<Product> Products {get; set;}
+        public Project0Context Context { get; set; }
+        public CustomerRepository CustomerRepo { get; set; }
+        public StoreRepository StoreRepo { get; set; }
+        public ProductRepository ProductRepo { get; set; }
+        public OrderRepository OrderRepo { get; set; }
+
 
         public StoreApp()
         {
+            string _connectionString = File.ReadAllText("C:/revature/project0-connection-string.txt");
+            var s_dbContextOptions = new DbContextOptionsBuilder<Project0Context>()
+                .UseSqlServer(_connectionString)
+                .Options;
+            Context = new Project0Context(s_dbContextOptions);
+            CustomerRepo = new CustomerRepository(Context);
+            StoreRepo = new StoreRepository(Context);
+            ProductRepo = new ProductRepository(Context);
+            OrderRepo = new OrderRepository(Context);
             Inputter = new Inputter();
             Outputter = new Outputter();
-            Stores = new List<Store>();
-            Customers = new List<Customer>();
-            Products = new List<Product>();
+            Stores = StoreRepo.GetStores().ToList();
+            Customers = CustomerRepo.GetCustomers().ToList();
+            Products = ProductRepo.GetProducts().ToList();
         }
         public void Run()
         {
@@ -29,13 +49,13 @@ namespace Models
                 while(currentStore == null)
                 {
                     PrintStoreLocations(Stores);
-                    Outputter.Write("Enter a store location to shop from or type 'new' to add a new location: ");
-                    string location = Inputter.GetStringInput();
-                    if(location.ToLower() != "new")
+                    Outputter.Write("Enter a store ID to shop from or type '0' to add a new location: ");
+                    int location = Inputter.GetIntegerInput();
+                    if(location != 0)
                     {
                         try
                         {
-                            currentStore = GetStoreByLocation(location, Stores);
+                            currentStore = GetStoreByID(location, Stores);
                         }
                         catch(Exception)
                         {
@@ -46,9 +66,12 @@ namespace Models
                     {
                         Outputter.Write("Enter a name for the store: ");
                         string storeName = Inputter.GetAnyInput();
-                        Outputter.Write("Enter the store location: ");
-                        string storeLocation = Inputter.GetStringInput();
-                        Stores.Add(new Store(storeName, storeLocation));
+                        Outputter.Write("Enter the stores city: ");
+                        string storeCity = Inputter.GetStringInput();
+                        Outputter.Write("Enter the stores state: ");
+                        string storeState = Inputter.GetStringInput();
+                        Stores.Add(new Store(storeName, storeCity, storeState));
+                        StoreRepo.AddStore(new Store(storeName, storeCity, storeState));
                     }
                 }
                 int option = 0;
@@ -93,13 +116,16 @@ namespace Models
 
         public void AddNewCustomer()
         {
-            Outputter.Write("Enter a name for new customer: ");
-            string name = Inputter.GetStringInput();
+            Outputter.Write("Enter first name for new customer: ");
+            string firstName = Inputter.GetStringInput();
+            Outputter.Write("Enter last name for new customer: ");
+            string lastName = Inputter.GetStringInput();
             Outputter.Write("Enter an email for new customer: ");
             string email = Inputter.GetAnyInput();
             Outputter.Write("Enter an address for new customer: ");
             string address = Inputter.GetAnyInput();
-            Customers.Add(new Customer(name, email, address));
+            Customers.Add(new Customer(firstName, lastName, email, address));
+            CustomerRepo.AddCustomer(new Customer(firstName, lastName, email, address));
             Outputter.WriteLine("Customer added successfully!");
         }
 
@@ -112,7 +138,7 @@ namespace Models
                 Customer customer = GetCustomerByID(id);
                 Outputter.WriteLine("Customer found!");
                 Outputter.WriteLine("ID\tName\tEmail\tAddress");
-                Outputter.WriteLine($"{customer.ID}\t{customer.Name}\t{customer.Email}\t{customer.Address}");
+                Outputter.WriteLine($"{customer.ID}\t{customer.FirstName + " " + customer.LastName}\t{customer.Email}\t{customer.Address}");
             }
             catch(Exception)
             {
@@ -147,8 +173,8 @@ namespace Models
                             int quantity = Inputter.GetIntegerInput();
                             try
                             {
-                                GetProductByID(item);
-                                order.Add(item, quantity);
+                                Product p = GetProductByID(item);
+                                order.Add(p, quantity);
                                 Outputter.WriteLine("Item added successfully!");
                             }
                             catch(Exception)
@@ -164,8 +190,8 @@ namespace Models
                             int quantity2 = Inputter.GetIntegerInput();
                             try
                             {
-                                GetProductByID(item2);
-                                order.Delete(item2, quantity2);
+                                Product p = GetProductByID(item2);
+                                order.Delete(p, quantity2);
                                 Outputter.WriteLine("Item removed successfully!");
                             }
                             catch(Exception)
@@ -357,11 +383,11 @@ namespace Models
             }
         }
 
-        public Store GetStoreByLocation(string location, List<Store> Stores)
+        public Store GetStoreByID(int location, List<Store> Stores)
         {
             foreach(var store in Stores)
             {
-                if(store.Location == location)
+                if(store.ID == location)
                 {
                     return store;
                 }
@@ -369,18 +395,18 @@ namespace Models
             throw new Exception();
         }
 
-        public void PrintStoreLocations(List<Store> Stores)
+        public void PrintStoreLocations(List<Store> stores)
         {
-            if(Stores.Count == 0)
+            if(stores.Count == 0)
             {
                 Outputter.WriteLine("No locations available!");
             }
             else
             {
                 Outputter.WriteLine("Available Locations:");
-                foreach(var store in Stores)
+                foreach(var store in stores)
                 {
-                    Outputter.WriteLine(store.Location);
+                    Outputter.WriteLine($"{store.ID} - {store.Name} in {store.City}, {store.State}");
                 }
             }
         }
@@ -478,7 +504,7 @@ namespace Models
                 Outputter.WriteLine("________________________________________________");
                 foreach(var customer in Customers)
                 {
-                    Outputter.WriteLine($"{customer.ID}\t{customer.Name}\t\t\t{customer.Email}\t\t\t{customer.Address}");
+                    Outputter.WriteLine($"{customer.ID}\t{customer.FirstName + " " + customer.LastName}\t\t\t{customer.Email}\t\t\t{customer.Address}");
                 }
             }
         }

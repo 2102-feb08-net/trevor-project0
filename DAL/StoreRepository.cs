@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL
 {
-    class StoreRepository : Models.IStoreRepository
+    public class StoreRepository : Models.IStoreRepository
     {
         private readonly Project0Context _context;
-        
+
         /// <summary>
         /// Ensures database connection is working properly
         /// </summary>
