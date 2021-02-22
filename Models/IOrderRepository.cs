@@ -36,6 +36,12 @@ namespace Models
         void AddOrder(Order order);
 
         /// <summary>
+        /// Update a given order in the database
+        /// </summary>
+        /// <param name="order">Order to update</param>
+        void UpdateOrder(Order order);
+
+        /// <summary>
         /// Adds a new product to an order
         /// </summary>
         /// <param name="product">Product to add</param>

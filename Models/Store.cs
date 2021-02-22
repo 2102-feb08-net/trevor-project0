@@ -5,8 +5,6 @@ namespace Models
 {
     public class Store
     {
-        private static int _idSeed = 1110;
-
         public Dictionary<Product, int> Inventory;
 
         public int ID {get; set;}
@@ -17,7 +15,6 @@ namespace Models
 
         public Store(string name, string city, string state)
         {
-            ID = ++_idSeed;
             Name = name;
             City = city;
             State = state;

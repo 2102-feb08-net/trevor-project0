@@ -124,8 +124,8 @@ namespace UI
             string email = Inputter.GetAnyInput();
             Outputter.Write("Enter an address for new customer: ");
             string address = Inputter.GetAnyInput();
-            Customers.Add(new Customer(firstName, lastName, email, address));
             CustomerRepo.AddCustomer(new Customer(firstName, lastName, email, address));
+            CustomerRepo.Save();
             Outputter.WriteLine("Customer added successfully!");
         }
 
@@ -135,7 +135,7 @@ namespace UI
             int id = Inputter.GetIntegerInput();
             try
             {
-                Customer customer = GetCustomerByID(id);
+                Customer customer = CustomerRepo.GetCustomerByID(id);
                 Outputter.WriteLine("Customer found!");
                 Outputter.WriteLine("ID\tName\tEmail\tAddress");
                 Outputter.WriteLine($"{customer.ID}\t{customer.FirstName + " " + customer.LastName}\t{customer.Email}\t{customer.Address}");
@@ -152,8 +152,9 @@ namespace UI
             int id = Inputter.GetIntegerInput();
             try
             {
-                Customer customer = GetCustomerByID(id);
+                Customer customer = CustomerRepo.GetCustomerByID(id);
                 Order order = new Order(customer, store);
+                OrderRepo.AddOrder(order);
                 bool ordering = true;
                 while(ordering)
                 {
@@ -173,8 +174,9 @@ namespace UI
                             int quantity = Inputter.GetIntegerInput();
                             try
                             {
-                                Product p = GetProductByID(item);
+                                Product p = GetProductFromStoreByID(store, item);
                                 order.Add(p, quantity);
+                                OrderRepo.AddOrderItem(p, order, quantity);
                                 Outputter.WriteLine("Item added successfully!");
                             }
                             catch(Exception)
@@ -190,8 +192,16 @@ namespace UI
                             int quantity2 = Inputter.GetIntegerInput();
                             try
                             {
-                                Product p = GetProductByID(item2);
-                                order.Delete(p, quantity2);
+                                Product p = GetProductFromStoreByID(store, item2);
+                                if(order.Items[p] == quantity2)
+                                {
+                                    OrderRepo.RemoveOrderItem(p, order);
+                                }
+                                else
+                                {
+                                    order.Delete(p, quantity2);
+                                    OrderRepo.UpdateOrderItemQuantity(p, order, quantity2);
+                                }
                                 Outputter.WriteLine("Item removed successfully!");
                             }
                             catch(Exception)
@@ -208,6 +218,8 @@ namespace UI
                                 order.CalculateOrderTotal(Products);
                                 order.SubmitOrder();
                                 ordering = false;
+                                OrderRepo.UpdateOrder(order);
+                                OrderRepo.Save();
                                 Outputter.WriteLine("Order placed successfully!");
                             }
                             catch(Exception)
@@ -234,7 +246,7 @@ namespace UI
             int orderNumber = Inputter.GetIntegerInput();
             try
             {
-                Order order = store.GetOrderByID(orderNumber);
+                Order order = OrderRepo.GetOrderByID(orderNumber);
                 PrintOrder(order);
             }
             catch(Exception)
@@ -245,12 +257,11 @@ namespace UI
 
         public void PrintOrder(Order order)
         {
-            Outputter.WriteLine($"Order number: {order.ID}\nStore: {order.Store.Name}, {order.Store.Location}\nCustomer name: {order.Customer.Name}\nTimestamp: {order.OrderTime.Date.ToString("d")}");
+            Outputter.WriteLine($"Order number: {order.ID}\nStore: {order.Store.Name}, {order.Store.City}, {order.Store.State}\nCustomer name: {order.Customer.FirstName} {order.Customer.LastName}\nTimestamp: {order.OrderTime.Date.ToString("d")}");
             Outputter.WriteLine("Receipt\n________");
-            foreach(var item in order.GetItems())
+            foreach(var item in order.Items)
             {
-                Product p = GetProductByID(item.Key);
-                Outputter.WriteLine($"{item.Key} - ({item.Value}) {p.Name} ${p.Price*item.Value}");
+                Outputter.WriteLine($"{item.Key} - ({item.Value}) {item.Key.Name} ${item.Key.Price*item.Value}");
             }
             Outputter.WriteLine("________");
             order.CalculateOrderTotal(Products);
@@ -263,7 +274,7 @@ namespace UI
             int id = Inputter.GetIntegerInput();
             try
             {
-                Customer c = GetCustomerByID(id);
+                Customer c = CustomerRepo.GetCustomerByID(id);
                 PrintCustomerOrderHistory(c);
             }
             catch(Exception)
@@ -274,7 +285,8 @@ namespace UI
 
         public void PrintCustomerOrderHistory(Customer customer)
         {
-            if(customer.OrderHistory.Count == 0)
+            List<Order> orderHistory = OrderRepo.GetOrdersByCustomerID(customer.ID).ToList();
+            if(orderHistory.Count == 0)
             {
                 Outputter.WriteLine("Customer has 0 orders!");
             }
@@ -282,7 +294,7 @@ namespace UI
             {
                 Outputter.WriteLine("ID\tDate of Order\t\t\tTotal Price");
                 Outputter.WriteLine("__________________________________________________________________________________________");
-                foreach(var order in customer.OrderHistory)
+                foreach(var order in orderHistory)
                 {
                     Outputter.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t${order.TotalPrice}");
                 }
@@ -297,7 +309,7 @@ namespace UI
                 int option = 0;
                 while(!(option > 0 && option < 7))
                 {
-                    Outputter.WriteLine("Select an action:\n[1] Add a new product\n[2] Add inventory for existing product\n[3] Change price of existing product\n[4] Delete product from inventory\n[5] View Inventory\n[6] Quit back to main menu");
+                    Outputter.WriteLine("Select an action:\n[1] Add a new product\n[2] Add inventory for existing product\n[3] Delete product from inventory\n[4] View Inventory\n[5] Quit back to main menu");
                     option = Inputter.GetIntegerInput();
                 }
                 switch(option)
@@ -312,8 +324,9 @@ namespace UI
                         try
                         {
                             Product toAdd = new Product(name, price);
-                            store.AddToInventory(toAdd.ID, quantity);
-                            Products.Add(toAdd);
+                            ProductRepo.AddProduct(toAdd);
+                            store.AddToInventory(toAdd, quantity);
+                            StoreRepo.AddToInventory(toAdd, store, quantity);
                             Outputter.WriteLine("Product added to inventory successfully!");
                         }
                         catch(ArgumentException)
@@ -326,10 +339,10 @@ namespace UI
                         try
                         {
                             int productID = Inputter.GetIntegerInput();
-                            GetProductByID(productID);
+                            Product p = GetProductFromStoreByID(store, productID);
                             Outputter.Write("How many do you want to add to inventory: ");
                             int quantity2 = Inputter.GetIntegerInput();
-                            store.AddToInventory(productID, quantity2);
+                            StoreRepo.UpdateItemQuantity(p, store, quantity2);
                             Outputter.WriteLine("Product inventory added successfully!");
                         }
                         catch(Exception)
@@ -338,34 +351,12 @@ namespace UI
                         }
                         break;
                     case 3:
-                        Outputter.Write("Enter a product ID: ");
-                        int id = Inputter.GetIntegerInput();
-                        Outputter.Write("Enter a new price for the item: ");
-                        double price2 = Inputter.GetDoubleInput();
-                        try
-                        {
-                            foreach(var product in Products)
-                            {
-                                if(product.ID == id)
-                                {
-                                    product.UpdatePrice(price2);
-                                    Outputter.WriteLine("Price changed successfully!");
-                                }
-                            }
-                        }
-                        catch(Exception)
-                        {
-                            Outputter.WriteLine("Couldn't change price of product.");
-                        }
-                        break;
-                    case 4:
                         Outputter.Write("Enter a product ID to remove: ");
                         int idRemove = Inputter.GetIntegerInput();
                         try
                         {
-                            store.DeleteAll(idRemove);
-                            Product toRemove = GetProductByID(idRemove);
-                            Products.Remove(toRemove);
+                            Product remove = GetProductFromStoreByID(store, idRemove);
+                            StoreRepo.RemoveItemFromInventory(remove, store);
                             Outputter.WriteLine("Product successfully removed from inventory!");
                         }
                         catch(Exception)
@@ -373,11 +364,13 @@ namespace UI
                             Outputter.WriteLine("Couldn't remove product from inventory!");
                         }
                         break;
-                    case 5:
+                    case 4:
                         PrintInventory(store);
                         break;
-                    case 6:
+                    case 5:
                         editting = false;
+                        StoreRepo.Save();
+                        ProductRepo.Save();
                         break;
                 }
             }
@@ -413,40 +406,38 @@ namespace UI
 
         public void PrintInventory(Store store)
         {
-            if(store.GetInventory().Count == 0)
+            if(store.Inventory.Count == 0)
             {
                 Outputter.WriteLine("Inventory is empty.");
             }
             else
             {
                 Outputter.WriteLine("ID\t\tName\t\tPrice\t\tQuantity");
-                foreach(var item in store.GetInventory())
+                foreach(var item in store.Inventory)
                 {
-                    Product p = GetProductByID(item.Key);
-                    Outputter.WriteLine($"{p.ID}\t\t{p.Name}\t\t${p.Price}\t\t{item.Value} Available");
+                    Outputter.WriteLine($"{item.Key.ID}\t\t{item.Key.Name}\t\t${item.Key.Price}\t\t{item.Value} Available");
                 }
             }
         }
 
         public void PrintInventory(Store store, Order order)
         {
-            var orderItems = order.GetItems();
-            if(store.GetInventory().Count == 0)
+            var orderItems = order.Items;
+            if(store.Inventory.Count == 0)
             {
                 Outputter.WriteLine("Inventory is empty.");
             }
             else
             {
                 Outputter.WriteLine("ID\t\tName\t\tPrice\t\tQuantity");
-                foreach(var item in store.GetInventory())
+                foreach(var item in store.Inventory)
                 {
-                    Product p = GetProductByID(item.Key);
                     int inOrder = 0;
                     if(orderItems.ContainsKey(item.Key))
                     {
                         inOrder = orderItems[item.Key];
                     }
-                    Outputter.WriteLine($"{p.ID}\t\t{p.Name}\t\t${p.Price}\t\t{item.Value-inOrder} Available");
+                    Outputter.WriteLine($"{item.Key.ID}\t\t{item.Key.Name}\t\t${item.Key.Price}\t\t{item.Value-inOrder} Available");
                 }
             }
         }
@@ -475,9 +466,22 @@ namespace UI
             throw new Exception("Item not found.");
         }
 
+        public Product GetProductFromStoreByID(Store store, int id)
+        {
+            foreach (var item in store.Inventory)
+            {
+                if (item.Key.ID == id)
+                {
+                    return item.Key;
+                }
+            }
+            throw new Exception("Item not found.");
+        }
+
         public void PrintStoreOrderHistory(Store store)
         {
-            if(store.OrderHistory.Count == 0)
+            List<Order> orderHistory = OrderRepo.GetOrdersByStoreID(store.ID).ToList();
+            if(orderHistory.Count == 0)
             {
                 Outputter.WriteLine("Store has no order history.");
             }
@@ -485,16 +489,17 @@ namespace UI
             {
                 Outputter.WriteLine("ID\tDate of Order\t\t\tTotal Price\t\t\tCustomer");
                 Outputter.WriteLine("__________________________________________________________________________________________");
-                foreach(var order in store.OrderHistory)
+                foreach(var order in orderHistory)
                 {
-                    Outputter.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t${order.TotalPrice}\t\t\t{order.Customer.Name}");
+                    Outputter.WriteLine($"{order.ID}\t{order.OrderTime.Date.ToString("d")}\t\t\t${order.TotalPrice}\t\t\t{order.Customer.FirstName} {order.Customer.LastName}");
                 }
             }
         }
 
         public void PrintCustomerList()
         {
-            if(Customers.Count == 0)
+            List<Customer> customers = CustomerRepo.GetCustomers().ToList();
+            if(customers.Count == 0)
             {
                 Outputter.WriteLine("No customers in database.");
             }
@@ -502,7 +507,7 @@ namespace UI
             {
                 Outputter.WriteLine("ID\tName\t\t\tEmail\t\t\tAddress");
                 Outputter.WriteLine("________________________________________________");
-                foreach(var customer in Customers)
+                foreach(var customer in customers)
                 {
                     Outputter.WriteLine($"{customer.ID}\t{customer.FirstName + " " + customer.LastName}\t\t\t{customer.Email}\t\t\t{customer.Address}");
                 }

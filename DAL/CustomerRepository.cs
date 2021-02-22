@@ -25,7 +25,6 @@ namespace DAL
         {
             CustomerDAL newCustomer = new CustomerDAL
             {
-                Id = customer.ID,
                 FirstName = customer.FirstName,
                 LastName = customer.LastName,
                 Email = customer.Email,

@@ -24,7 +24,6 @@ namespace DAL
         {
             OrderDAL newOrder = new OrderDAL
             {
-                Id = order.ID,
                 StoreId = order.Store.ID,
                 CustomerId = order.Customer.ID,
                 TotalPrice = Convert.ToDecimal(order.TotalPrice),
@@ -219,6 +218,21 @@ namespace DAL
             else
             {
                 throw new Exception("Couldn't find order with that ID");
+            }
+        }
+
+        public void UpdateOrder(Order order)
+        {
+            OrderDAL toUpdate = _context.Orders.Find(order.ID);
+            if(toUpdate != null)
+            {
+                toUpdate.TotalPrice = Convert.ToDecimal(order.TotalPrice);
+                toUpdate.OrderTime = order.OrderTime;
+                _context.Update(toUpdate);
+            }
+            else
+            {
+                throw new Exception("Couldn't find order to update");
             }
         }
     }

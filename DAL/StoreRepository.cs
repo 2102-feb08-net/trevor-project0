@@ -25,7 +25,6 @@ namespace DAL
         {
             var newStore = new StoreDAL
             {
-                Id = store.ID,
                 Name = store.Name,
                 City = store.City,
                 State = store.State,
@@ -45,7 +44,6 @@ namespace DAL
             }
             ProductDAL newProduct = new ProductDAL
             {
-                Id = product.ID,
                 Name = product.Name,
                 Price = Convert.ToDecimal(product.Price)
             };

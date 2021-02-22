@@ -5,7 +5,6 @@ namespace Models
 {
     public class Product
     {
-        private static int _idSeed = 1110;
         public int ID {get; set;}
         public string Name { get; set; }
         public double Price {get; set;}
@@ -17,7 +16,6 @@ namespace Models
         
         public Product(string name, double price)
         {
-            ID = ++_idSeed;
             Name = name;
             Price = price;
         }

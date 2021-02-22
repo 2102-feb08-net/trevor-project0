@@ -24,7 +24,6 @@ namespace DAL
         {
             ProductDAL newProduct = new ProductDAL
             {
-                Id = product.ID,
                 Name = product.Name,
                 Price = Convert.ToDecimal(product.Price)
             };

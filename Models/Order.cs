@@ -5,8 +5,6 @@ namespace Models
 {
     public class Order
     {
-        private static int _idSeed = 1110;
-
         public Dictionary<Product, int> Items;
 
         public int ID {get; set;}
@@ -22,7 +20,6 @@ namespace Models
 
         public Order(Customer customer, Store store)
         {
-            ID = ++_idSeed;
             Items = new Dictionary<Product, int>();
             TotalPrice = 0.0;
             Customer = customer;
