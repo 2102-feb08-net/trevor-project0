@@ -8,6 +8,6 @@ namespace Models
 
         int GetIntegerInput();
 
-        double GetDoubleInput();
+        decimal GetDecimalInput();
     }
 }

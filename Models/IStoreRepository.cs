@@ -43,6 +43,14 @@ namespace Models
         void AddToInventory(Product product, Store store, int quantity);
 
         /// <summary>
+        /// Get a product from the store inventory by ID
+        /// </summary>
+        /// <param name="productID">Product ID</param>
+        /// <param name="storeID">Store ID</param>
+        /// <returns>Product</returns>
+        Product GetProductFromInventory(int productID, int storeID);
+
+        /// <summary>
         /// Updates the quantity on a product for a store
         /// </summary>
         /// <param name="update">Product to update</param>

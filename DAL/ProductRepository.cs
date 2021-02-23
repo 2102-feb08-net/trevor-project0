@@ -52,7 +52,7 @@ namespace DAL
                 {
                     ID = query.Id,
                     Name = query.Name,
-                    Price = decimal.ToDouble(query.Price)
+                    Price = query.Price
                 };
             }
             else
@@ -70,7 +70,7 @@ namespace DAL
                 {
                     ID = query.Id,
                     Name = query.Name,
-                    Price = decimal.ToDouble(query.Price)
+                    Price = query.Price
                 };
             }
             else
@@ -92,7 +92,7 @@ namespace DAL
                 {
                     ID = p.Id,
                     Name = p.Name,
-                    Price = decimal.ToDouble(p.Price)
+                    Price = p.Price
                 });
             }
             else

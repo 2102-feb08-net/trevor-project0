@@ -27,7 +27,7 @@ namespace DAL
                 StoreId = order.Store.ID,
                 CustomerId = order.Customer.ID,
                 TotalPrice = Convert.ToDecimal(order.TotalPrice),
-                OrderTime = order.OrderTime
+                OrderTime = order.OrderTime,
             };
             _context.Add(newOrder);
         }
@@ -56,7 +56,7 @@ namespace DAL
             {
                 var inventory = query.OrderItems.Select(
                     x => new KeyValuePair<Product, int>(
-                    new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
+                    new Product(x.Id, x.Product.Name, x.Product.Price), x.Quantity)).ToList();
                
                 return new Order
                 {
@@ -67,10 +67,10 @@ namespace DAL
                         Name = query.Store.Name,
                         City = query.Store.City,
                         State = query.Store.State,
-                        GrossProfit = decimal.ToDouble(query.Store.Profit),
+                        GrossProfit = query.Store.Profit,
                         Inventory = query.Store.StoreItems.Select(
                                 x => new KeyValuePair<Product, int>(
-                                new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList().ToDictionary(x => x.Key, y => y.Value)
+                                new Product(x.Id, x.Product.Name, x.Product.Price), x.Quantity)).ToList().ToDictionary(x => x.Key, y => y.Value)
                     },
                     Customer = new Customer
                     {
@@ -80,7 +80,7 @@ namespace DAL
                         Email = query.Customer.Email,
                         Address = query.Customer.Address
                     },
-                    TotalPrice = decimal.ToDouble(query.TotalPrice),
+                    TotalPrice = query.TotalPrice,
                     OrderTime = query.OrderTime,
                     Items = inventory.ToDictionary(x => x.Key, y => y.Value)
                 };
@@ -106,7 +106,7 @@ namespace DAL
                 {
                     var items = order.OrderItems.Select(
                     x => new KeyValuePair<Product, int>(
-                    new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
+                    new Product(x.Id, x.Product.Name, x.Product.Price), x.Quantity)).ToList();
                     orders.Add(new Order
                     {
                         ID = order.Id,
@@ -116,10 +116,10 @@ namespace DAL
                             Name = order.Store.Name,
                             City = order.Store.City,
                             State = order.Store.State,
-                            GrossProfit = decimal.ToDouble(order.Store.Profit),
+                            GrossProfit = order.Store.Profit,
                             Inventory = order.Store.StoreItems.Select(
                                 x => new KeyValuePair<Product, int>(
-                                new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList().ToDictionary(x => x.Key, y => y.Value)
+                                new Product(x.Id, x.Product.Name, x.Product.Price), x.Quantity)).ToList().ToDictionary(x => x.Key, y => y.Value)
                         },
                         Customer = new Customer
                         {
@@ -129,7 +129,7 @@ namespace DAL
                             Email = order.Customer.Email,
                             Address = order.Customer.Address
                         },
-                        TotalPrice = decimal.ToDouble(order.TotalPrice),
+                        TotalPrice = order.TotalPrice,
                         OrderTime = order.OrderTime,
                         Items = items.ToDictionary(x => x.Key, y => y.Value)
                     });
@@ -157,7 +157,7 @@ namespace DAL
                 {
                     var items = order.OrderItems.Select(
                     x => new KeyValuePair<Product, int>(
-                    new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
+                    new Product(x.Id, x.Product.Name, x.Product.Price), x.Quantity)).ToList();
                     orders.Add(new Order
                     {
                         ID = order.Id,
@@ -167,10 +167,10 @@ namespace DAL
                             Name = order.Store.Name,
                             City = order.Store.City,
                             State = order.Store.State,
-                            GrossProfit = decimal.ToDouble(order.Store.Profit),
+                            GrossProfit = order.Store.Profit,
                             Inventory = order.Store.StoreItems.Select(
                                 x => new KeyValuePair<Product, int>(
-                                new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList().ToDictionary(x => x.Key, y => y.Value)
+                                new Product(x.Id, x.Product.Name, x.Product.Price), x.Quantity)).ToList().ToDictionary(x => x.Key, y => y.Value)
                         },
                         Customer = new Customer
                         {
@@ -180,7 +180,7 @@ namespace DAL
                             Email = order.Customer.Email,
                             Address = order.Customer.Address
                         },
-                        TotalPrice = decimal.ToDouble(order.TotalPrice),
+                        TotalPrice = order.TotalPrice,
                         OrderTime = order.OrderTime,
                         Items = items.ToDictionary(x => x.Key, y => y.Value)
                     });
@@ -216,74 +216,12 @@ namespace DAL
             var query = _context.OrderItems.Where(oi => oi.ProductId == product.ID && oi.OrderId == order.ID).First();
             if(query != null)
             {
-                query.Quantity = quantity;
+                query.Quantity += quantity;
                 _context.Update(query);
             }
             else
             {
                 throw new Exception("Couldn't find order item to update");
-            }
-        }
-
-        public Store GetStore(int orderId)
-        {
-            var order = _context.Orders.Find(orderId);
-            if(order != null)
-            {
-                var store = _context.Stores.Find(order.StoreId);
-                if(store != null)
-                {
-                    var query = _context.StoreItems.Where(si => si.StoreId == order.StoreId).ToList();
-                    var inventory = query.Select(
-                        x => new KeyValuePair<Product, int>(
-                        new Product(x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
-                    return new Store
-                    {
-                        ID = store.Id,
-                        Name = store.Name,
-                        City = store.City,
-                        State = store.State,
-                        GrossProfit = decimal.ToDouble(store.Profit),
-                        Inventory = inventory.ToDictionary(x => x.Key, y => y.Value)
-                    };
-                }
-                else
-                {
-                    throw new Exception("Couldn't find store associated with order");
-                }
-            }
-            else
-            {
-                throw new Exception("Couldn't find order with that ID");
-            }
-            
-        }
-
-        public Customer GetCustomer(int orderId)
-        {
-            var order = _context.Orders.Find(orderId);
-            if (order != null)
-            {
-                var customer = _context.Customers.Find(order.CustomerId);
-                if(customer != null)
-                {
-                    return new Customer
-                    {
-                        ID = customer.Id,
-                        FirstName = customer.FirstName,
-                        LastName = customer.LastName,
-                        Email = customer.Email,
-                        Address = customer.Address
-                    };
-                }
-                else
-                {
-                    throw new Exception("Couldn't find customer associated with this order");
-                }
-            }
-            else
-            {
-                throw new Exception("Couldn't find order with that ID");
             }
         }
 
@@ -299,6 +237,48 @@ namespace DAL
             else
             {
                 throw new Exception("Couldn't find order to update");
+            }
+        }
+
+        public Order GetMostRecentOrder()
+        {
+            var query = _context.Orders.OrderByDescending(o => o.Id).First();
+            if(query != null)
+            {
+                var inventory = query.OrderItems.Select(
+                    x => new KeyValuePair<Product, int>(
+                    new Product(x.Id, x.Product.Name, x.Product.Price), x.Quantity)).ToList();
+
+                return new Order
+                {
+                    ID = query.Id,
+                    Store = new Store
+                    {
+                        ID = query.Store.Id,
+                        Name = query.Store.Name,
+                        City = query.Store.City,
+                        State = query.Store.State,
+                        GrossProfit = query.Store.Profit,
+                        Inventory = query.Store.StoreItems.Select(
+                                x => new KeyValuePair<Product, int>(
+                                new Product(x.Id, x.Product.Name, x.Product.Price), x.Quantity)).ToList().ToDictionary(x => x.Key, y => y.Value)
+                    },
+                    Customer = new Customer
+                    {
+                        ID = query.Customer.Id,
+                        FirstName = query.Customer.FirstName,
+                        LastName = query.Customer.LastName,
+                        Email = query.Customer.Email,
+                        Address = query.Customer.Address
+                    },
+                    TotalPrice = query.TotalPrice,
+                    OrderTime = query.OrderTime,
+                    Items = inventory.ToDictionary(x => x.Key, y => y.Value)
+                };
+            }
+            else
+            {
+                throw new Exception("No orders available");
             }
         }
     }

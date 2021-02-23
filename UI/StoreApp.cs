@@ -10,11 +10,11 @@ namespace UI
 {
     public class StoreApp
     {
-        public Inputter Inputter {get;}
-        public Outputter Outputter {get;}
-        public List<Store> Stores {get; set;}
-        public List<Customer> Customers {get; set;}
-        public List<Product> Products {get; set;}
+        public Inputter Inputter { get; }
+        public Outputter Outputter { get; }
+        public List<Store> Stores { get; set; }
+        public List<Customer> Customers { get; set; }
+        public List<Product> Products { get; set; }
         public Project0Context Context { get; set; }
         public CustomerRepository CustomerRepo { get; set; }
         public StoreRepository StoreRepo { get; set; }
@@ -154,9 +154,8 @@ namespace UI
             try
             {
                 Customer customer = CustomerRepo.GetCustomerByID(id);
-                Order order = new Order(customer, store);
-                OrderRepo.AddOrder(order);
                 bool ordering = true;
+                Dictionary<Product, int> cart = new Dictionary<Product, int>();
                 while(ordering)
                 {
                     int option = 0;
@@ -168,16 +167,22 @@ namespace UI
                     switch(option)
                     {
                         case 1:
-                            PrintInventory(store, order);
+                            PrintInventory(store, cart);
                             Outputter.Write("Enter an item to add to cart: ");
                             int item = Inputter.GetIntegerInput();
                             Outputter.Write("Enter how many you would like: ");
                             int quantity = Inputter.GetIntegerInput();
                             try
                             {
-                                Product p = GetProductFromStoreByID(store, item);
-                                order.Add(p, quantity);
-                                OrderRepo.AddOrderItem(p, order, quantity);
+                                Product p = StoreRepo.GetProductFromInventory(item, store.ID);
+                                if (cart.ContainsKey(p))
+                                {
+                                    cart[p] += quantity;
+                                }
+                                else
+                                {
+                                    cart[p] = quantity;
+                                }
                                 Outputter.WriteLine("Item added successfully!");
                             }
                             catch(Exception)
@@ -186,7 +191,7 @@ namespace UI
                             }
                             break;
                         case 2:
-                            PrintOrder(order);
+                            PrintCart(cart);
                             Outputter.Write("Enter an item to remove from cart: ");
                             int item2 = Inputter.GetIntegerInput();
                             Outputter.Write("Enter how many you would like to remove: ");
@@ -194,16 +199,20 @@ namespace UI
                             try
                             {
                                 Product p = GetProductFromStoreByID(store, item2);
-                                if(order.Items[p] == quantity2)
+                                if(cart[p] <= quantity2 && cart.ContainsKey(p))
                                 {
-                                    OrderRepo.RemoveOrderItem(p, order);
+                                    cart.Remove(p);
+                                    Outputter.WriteLine("Item removed successfully!");
+                                }
+                                else if(cart.ContainsKey(p))
+                                {
+                                    cart[p] -= quantity2;
+                                    Outputter.WriteLine($"Removed {quantity2} {p.Name}'s from cart successfully!");
                                 }
                                 else
                                 {
-                                    order.Delete(p, quantity2);
-                                    OrderRepo.UpdateOrderItemQuantity(p, order, quantity2);
+                                    Outputter.WriteLine("Item doesn't exist in your cart!");
                                 }
-                                Outputter.WriteLine("Item removed successfully!");
                             }
                             catch(Exception)
                             {
@@ -211,15 +220,26 @@ namespace UI
                             }
                             break;
                         case 3:
-                            PrintOrder(order);
+                            PrintCart(cart);
                             break;
                         case 4:
                             try
                             {
+                                Order order = new Order(customer, store);
+                                order.Items = cart;
                                 order.CalculateOrderTotal(Products);
                                 order.SubmitOrder();
+                                StoreRepo.UpdateStore(order.Store);
+                                StoreRepo.ProcessInventoryForOrder(order.Store, cart);
+                                StoreRepo.Save();
                                 ordering = false;
-                                OrderRepo.UpdateOrder(order);
+                                OrderRepo.AddOrder(order);
+                                OrderRepo.Save();
+                                order = OrderRepo.GetMostRecentOrder();
+                                foreach(var orderItem in cart)
+                                {
+                                    OrderRepo.AddOrderItem(orderItem.Key, order, orderItem.Value);
+                                }
                                 OrderRepo.Save();
                                 Outputter.WriteLine("Order placed successfully!");
                             }
@@ -262,11 +282,20 @@ namespace UI
             Outputter.WriteLine("Receipt\n________");
             foreach(var item in order.Items)
             {
-                Outputter.WriteLine($"{item.Key} - ({item.Value}) {item.Key.Name} ${item.Key.Price*item.Value}");
+                Outputter.WriteLine($"{item.Key.ID} - ({item.Value}) {item.Key.Name} ${item.Key.Price*item.Value}");
             }
             Outputter.WriteLine("________");
             order.CalculateOrderTotal(Products);
             Outputter.WriteLine($"Total: ${order.TotalPrice}");
+        }
+
+        public void PrintCart(Dictionary<Product, int> cart)
+        {
+            foreach (var item in cart)
+            {
+                Outputter.WriteLine($"{item.Key.ID} - ({item.Value}) {item.Key.Name} ${item.Key.Price * item.Value}");
+            }
+            Outputter.WriteLine("________");
         }
 
         public void DisplayCustomerOrders()
@@ -319,7 +348,7 @@ namespace UI
                         Outputter.Write("Enter a product name: ");
                         string name = Inputter.GetStringInput();
                         Outputter.Write("Enter a price: ");
-                        double price = Inputter.GetDoubleInput();
+                        decimal price = Inputter.GetDecimalInput();
                         Outputter.Write("How many do you want to add to inventory: ");
                         int quantity = Inputter.GetIntegerInput();
                         try
@@ -330,6 +359,7 @@ namespace UI
                             toAdd = ProductRepo.GetProductByNameAndPrice(name, Convert.ToDecimal(price)); // This is necessary to get the ID of the product we just added
                             store.AddToInventory(toAdd, quantity);
                             StoreRepo.AddToInventory(toAdd, store, quantity);
+                            StoreRepo.Save();
                             Outputter.WriteLine("Product added to inventory successfully!");
                         }
                         catch(ArgumentException)
@@ -347,6 +377,7 @@ namespace UI
                             Outputter.Write("How many do you want to add to inventory: ");
                             int quantity2 = Inputter.GetIntegerInput();
                             StoreRepo.UpdateItemQuantity(p, store, quantity2);
+                            StoreRepo.Save();
                             Outputter.WriteLine("Product inventory added successfully!");
                         }
                         catch(Exception)
@@ -362,6 +393,7 @@ namespace UI
                         {
                             Product remove = GetProductFromStoreByID(store, idRemove);
                             StoreRepo.RemoveItemFromInventory(remove, store);
+                            StoreRepo.Save();
                             Outputter.WriteLine("Product successfully removed from inventory!");
                         }
                         catch(Exception)
@@ -427,9 +459,8 @@ namespace UI
             }
         }
 
-        public void PrintInventory(Store store, Order order)
+        public void PrintInventory(Store store, Dictionary<Product, int> cart)
         {
-            var orderItems = order.Items;
             if(store.Inventory.Count == 0)
             {
                 Outputter.WriteLine("Inventory is empty.");
@@ -440,9 +471,12 @@ namespace UI
                 foreach(var item in store.Inventory)
                 {
                     int inOrder = 0;
-                    if(orderItems.ContainsKey(item.Key))
+                    foreach(var cartItem in cart)
                     {
-                        inOrder = orderItems[item.Key];
+                        if(cartItem.Key.ID == item.Key.ID)
+                        {
+                            inOrder = cartItem.Value;
+                        }
                     }
                     Outputter.WriteLine($"{item.Key.ID}\t\t{item.Key.Name}\t\t${item.Key.Price}\t\t{item.Value-inOrder} Available");
                 }

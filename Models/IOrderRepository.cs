@@ -49,18 +49,10 @@ namespace Models
         void AddOrderItem(Product product, Order order, int quantity);
 
         /// <summary>
-        /// Get the store associated with an order
+        /// Gets the most recent order placed
         /// </summary>
-        /// <param name="orderId">Order ID</param>
-        /// <returns></returns>
-        public Store GetStore(int orderId);
-
-        /// <summary>
-        /// Get the customer associated with an order
-        /// </summary>
-        /// <param name="orderId">Order ID</param>
-        /// <returns></returns>
-        public Customer GetCustomer(int orderId);
+        /// <returns>Order</returns>
+        Order GetMostRecentOrder();
 
         /// <summary>
         /// Update order item information including item name, price or quantity

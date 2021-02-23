@@ -54,8 +54,27 @@ namespace DAL
                 ProductId = product.ID,
                 Quantity = quantity
             };
-            _context.Add(newProduct);
             _context.Add(newInventoryItem);
+        }
+
+        public Product GetProductFromInventory(int productID, int storeID)
+        {
+            var query = _context.StoreItems
+                .Include(s => s.Product)
+                .Where(s => s.ProductId == productID && s.StoreId == storeID).First();
+            if(query != null)
+            {
+                return new Product
+                {
+                    ID = query.ProductId,
+                    Name = query.Product.Name,
+                    Price = query.Product.Price
+                };
+            }
+            else
+            {
+                throw new Exception("Couldn't find product in that store");
+            }
         }
 
         public Store GetStoreByID(int id)
@@ -69,7 +88,7 @@ namespace DAL
             {
                 var inventory = query.StoreItems.Select(
                     x => new KeyValuePair<Product, int>(
-                    new Product(x.Product.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
+                    new Product(x.Product.Id, x.Product.Name, x.Product.Price), x.Quantity)).ToList();
                
                 return new Store
                 {
@@ -77,7 +96,7 @@ namespace DAL
                     Name = query.Name,
                     City = query.City,
                     State = query.State,
-                    GrossProfit = decimal.ToDouble(query.Profit),
+                    GrossProfit = query.Profit,
                     Inventory = inventory.ToDictionary(x => x.Key, y => y.Value)
                 };
             }
@@ -101,14 +120,14 @@ namespace DAL
             {
                 var inventory = store.StoreItems.Select(
                     x => new KeyValuePair<Product, int>(
-                    new Product(x.Id, x.Product.Name, decimal.ToDouble(x.Product.Price)), x.Quantity)).ToList();
+                    new Product(x.Id, x.Product.Name, x.Product.Price), x.Quantity)).ToList();
                 stores.Add(new Store
                 {
                     ID = store.Id,
                     Name = store.Name,
                     City = store.City,
                     State = store.State,
-                    GrossProfit = decimal.ToDouble(store.Profit),
+                    GrossProfit = store.Profit,
                     Inventory = inventory.ToDictionary(x => x.Key, y => y.Value)
                 });
             }
@@ -138,7 +157,7 @@ namespace DAL
             var query = _context.StoreItems.Where(p => p.ProductId == product.ID && p.StoreId == store.ID).First();
             if(query != null)
             {
-                query.Quantity = quantity;
+                query.Quantity += quantity;
                 _context.Update(query);
             }
             else
@@ -149,18 +168,40 @@ namespace DAL
 
         public void UpdateStore(Store store)
         {
-            var query = _context.Stores.Find(store.ID);
+            var query = _context.Stores
+                .Include(s => s.StoreItems)
+                    .ThenInclude(p => p.Product).First(s => s.Id == store.ID);
             if(query != null)
             {
                 query.Name = store.Name;
                 query.City = store.City;
                 query.State = store.State;
-                query.Profit = Convert.ToDecimal(store.GrossProfit);
+                query.Profit = store.GrossProfit;
                 _context.Update(query);
             }
             else
             {
                 throw new Exception("Could not locate store to update");
+            }
+        }
+
+        public void ProcessInventoryForOrder(Store store, Dictionary<Product, int> cart)
+        {
+            var query = _context.StoreItems
+                .Include(s => s.Product)
+                .Where(s => s.StoreId == store.ID);
+
+            foreach(var storeItem in query)
+            {
+                foreach(var cartItem in cart)
+                {
+                    if(storeItem.ProductId == cartItem.Key.ID)
+                    {
+                        storeItem.Quantity -= cartItem.Value;
+                        break;
+                    }
+                }
+                _context.Update(storeItem);
             }
         }
     }

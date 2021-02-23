@@ -11,7 +11,7 @@ namespace Models
         public string Name { get; set; }
         public string City { get; set; }
         public string State { get; set; }
-        public double GrossProfit {get; set;}
+        public decimal GrossProfit {get; set;}
 
         public Store(string name, string city, string state)
         {
@@ -19,7 +19,7 @@ namespace Models
             City = city;
             State = state;
             Inventory = new Dictionary<Product, int>();
-            GrossProfit = 0.0;
+            GrossProfit = 0.0M;
         }
 
         public Store()
@@ -60,9 +60,14 @@ namespace Models
             var items = order.Items;
             foreach(var listItem in items)
             {
-                if(!Inventory.ContainsKey(listItem.Key) || listItem.Value > Inventory[listItem.Key])
+                var key = GetKeyByID(listItem.Key.ID);
+                if(!Inventory.ContainsKey(key))
                 {
-                    throw new Exception("Order item either does not exist or has too high quantity");
+                    throw new Exception("Order item does not exist");
+                }
+                if(listItem.Value > Inventory[key])
+                {
+                    throw new Exception("Order item is requesting to buy too many");
                 }
             }
             return true;
@@ -73,9 +78,22 @@ namespace Models
             var items = order.Items;
             foreach(var listItem in items)
             {
-                Inventory[listItem.Key] -= listItem.Value;
+                var key = GetKeyByID(listItem.Key.ID);
+                Inventory[key] -= listItem.Value;
             }
             GrossProfit += order.TotalPrice;
+        }
+
+        public Product GetKeyByID(int id)
+        {
+            foreach(var item in Inventory)
+            {
+                if(item.Key.ID == id)
+                {
+                    return item.Key;
+                }
+            }
+            return null;
         }
     }
 }

@@ -45,14 +45,14 @@ namespace Models
             return option;
         }
 
-        public double GetDoubleInput()
+        public decimal GetDecimalInput()
         {
-            double ret = -1.0;
+            decimal ret = -1.0M;
             while(ret < 0)
             {
                 try
                 {
-                    ret = double.Parse(Console.ReadLine());
+                    ret = decimal.Parse(Console.ReadLine());
                 }
                 catch
                 {

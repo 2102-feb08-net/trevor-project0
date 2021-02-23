@@ -8,7 +8,7 @@ namespace Models
         public Dictionary<Product, int> Items;
 
         public int ID {get; set;}
-        public double TotalPrice {get; set;}
+        public decimal TotalPrice {get; set;}
         public Customer Customer { get; set; }
         public Store Store {get; set;}
         public DateTime OrderTime {get; set;}
@@ -21,7 +21,7 @@ namespace Models
         public Order(Customer customer, Store store)
         {
             Items = new Dictionary<Product, int>();
-            TotalPrice = 0.0;
+            TotalPrice = 0.0M;
             Customer = customer;
             Store = store;
         }
@@ -69,13 +69,7 @@ namespace Models
             {
                 foreach(var item in Items)
                 {
-                    foreach(var product in Products)
-                    {
-                        if(item.Key == product)
-                        {
-                            TotalPrice += product.Price*item.Value;
-                        }
-                    }
+                    TotalPrice += item.Key.Price * item.Value;
                 }
             }
         }
