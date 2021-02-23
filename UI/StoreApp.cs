@@ -141,7 +141,7 @@ namespace UI
                 Outputter.WriteLine("ID\tName\tEmail\tAddress");
                 Outputter.WriteLine($"{customer.ID}\t{customer.FirstName + " " + customer.LastName}\t{customer.Email}\t{customer.Address}");
             }
-            catch(Exception)
+            catch(Exception e)
             {
                 Outputter.WriteLine("Couldn't find customer with that ID.");
             }

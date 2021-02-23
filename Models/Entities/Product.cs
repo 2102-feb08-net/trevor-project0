@@ -5,18 +5,19 @@ namespace Models
 {
     public class Product
     {
+        private decimal _price;
         public int ID {get; set;}
         public string Name { get; set; }
         public decimal Price
         {
-            get { return Price; } 
+            get { return _price; } 
             set
             {
                 if(value < 0)
                 {
                     throw new ArgumentException("Price cannot be negative");
                 }
-                Price = value;
+                _price = value;
             }
         }
 

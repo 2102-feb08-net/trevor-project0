@@ -37,9 +37,7 @@ namespace Models.Tests
             string name = "Pizza";
             decimal price = -1;
 
-            Action a = () => new Product(name, price);
-
-            Assert.Throws<ArgumentException>(a);
+            Assert.Throws<ArgumentException>(() => new Product(name, price));
         }
     }
 }

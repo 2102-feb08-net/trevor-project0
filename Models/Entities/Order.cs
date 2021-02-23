@@ -5,10 +5,26 @@ namespace Models
 {
     public class Order
     {
+        private decimal _totalPrice;
+
         public Dictionary<Product, int> Items;
 
         public int ID {get; set;}
-        public decimal TotalPrice {get; set;}
+        public decimal TotalPrice
+        {
+            get { return _totalPrice; }
+            set
+            {
+                if(value < 0)
+                {
+                    throw new ArgumentException("Price on order cannot be negative");
+                }
+                else
+                {
+                    _totalPrice = value;
+                }
+            }
+        }
         public Customer Customer { get; set; }
         public Store Store {get; set;}
         public DateTime OrderTime {get; set;}
