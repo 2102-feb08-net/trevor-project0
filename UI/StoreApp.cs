@@ -199,19 +199,21 @@ namespace UI
                             try
                             {
                                 Product p = GetProductFromStoreByID(store, item2);
-                                if(cart[p] <= quantity2 && cart.ContainsKey(p))
+                                foreach(var cartItem in cart)
                                 {
-                                    cart.Remove(p);
-                                    Outputter.WriteLine("Item removed successfully!");
-                                }
-                                else if(cart.ContainsKey(p))
-                                {
-                                    cart[p] -= quantity2;
-                                    Outputter.WriteLine($"Removed {quantity2} {p.Name}'s from cart successfully!");
-                                }
-                                else
-                                {
-                                    Outputter.WriteLine("Item doesn't exist in your cart!");
+                                    if(cartItem.Key.ID == p.ID)
+                                    {
+                                        if(cartItem.Value <= quantity2)
+                                        {
+                                            cart.Remove(cartItem.Key);
+                                            Outputter.WriteLine("Item removed successfully!");
+                                        }
+                                        else
+                                        {
+                                            cart[cartItem.Key] -= quantity2;
+                                            Outputter.WriteLine($"Removed {quantity2} {p.Name}'s from cart successfully!");
+                                        }
+                                    }
                                 }
                             }
                             catch(Exception)
