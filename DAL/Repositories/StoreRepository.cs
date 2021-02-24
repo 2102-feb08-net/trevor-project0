@@ -208,8 +208,8 @@ namespace DAL
                     }
                 }
                 _context.Update(storeItem);
-                _context.SaveChanges();
             }
+            _context.SaveChanges();
         }
     }
 }

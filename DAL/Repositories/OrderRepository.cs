@@ -253,7 +253,12 @@ namespace DAL
         public Order GetMostRecentOrder()
         {
             using var _context = new Project0Context(_options);
-            var query = _context.Orders.OrderByDescending(o => o.Id).First();
+            var query = _context.Orders.OrderByDescending(o => o.Id)
+                .Include(o => o.Store)
+                    .ThenInclude(s => s.StoreItems)
+                        .ThenInclude(si => si.Product)
+                .Include(o => o.Customer)
+                .First();
             if(query != null)
             {
                 var inventory = query.OrderItems.Select(

@@ -239,7 +239,7 @@ namespace UI
                             }
                             catch(Exception)
                             {
-                                Outputter.WriteLine("Couldn't process order!");
+                                Outputter.WriteLine("Couldn't process order");
                             }
                             break;
                         case 5:
