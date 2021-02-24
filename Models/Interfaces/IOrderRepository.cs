@@ -20,14 +20,14 @@ namespace Models
         /// </summary>
         /// <param name="storeId">Foreign key for store</param>
         /// <returns>List of orders for a store</returns>
-        IEnumerable<Order> GetOrdersByStoreID(int storeId);
+        List<Order> GetOrdersByStoreID(int storeId);
 
         /// <summary>
         /// Get a list of orders for a customer
         /// </summary>
         /// <param name="customerID">Foreign key for customer</param>
         /// <returns>List of orders for a customer</returns>
-        IEnumerable<Order> GetOrdersByCustomerID(int customerID);
+        List<Order> GetOrdersByCustomerID(int customerID);
 
         /// <summary>
         /// Adds a new order to the database

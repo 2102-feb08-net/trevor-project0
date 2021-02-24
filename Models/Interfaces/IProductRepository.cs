@@ -13,7 +13,7 @@ namespace Models
         /// </summary>
         /// <param name="search">Optional parameter to search products by name</param>
         /// <returns>List of products</returns>
-        IEnumerable<Product> GetProducts(string search = null);
+        List<Product> GetProducts(string search = null);
 
         /// <summary>
         /// Get a product by its ID

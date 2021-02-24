@@ -31,7 +31,7 @@ namespace Models
         public int GetIntegerInput()
         {
             int option = -1;
-            while(option == -1)
+            while(option < 0)
             {
                 try
                 {

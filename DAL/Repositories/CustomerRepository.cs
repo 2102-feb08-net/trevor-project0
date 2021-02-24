@@ -58,7 +58,7 @@ namespace DAL
             }
         }
 
-        public IEnumerable<Customer> GetCustomers(string firstName = null, string lastName = null)
+        public List<Customer> GetCustomers(string firstName = null, string lastName = null)
         {
             using var _context = new Project0Context(_options);
             IQueryable<CustomerDAL> query = _context.Customers;
@@ -81,7 +81,7 @@ namespace DAL
                 LastName = c.LastName,
                 Email = c.Email,
                 Address = c.Address
-            });
+            }).ToList();
         }
 
         public void UpdateCustomer(Customer customer)

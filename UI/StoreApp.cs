@@ -142,6 +142,7 @@ namespace UI
                 Customer customer = CustomerRepo.GetCustomerByID(id);
                 bool ordering = true;
                 Dictionary<Product, int> cart = new Dictionary<Product, int>();
+                Dictionary<Product, int> tempInv = store.Inventory;
                 while(ordering)
                 {
                     int option = 0;
@@ -160,14 +161,20 @@ namespace UI
                             int quantity = Inputter.GetIntegerInput();
                             try
                             {
-                                Product p = StoreRepo.GetProductFromInventory(item, store.ID);
-                                if (cart.ContainsKey(p))
+                                Product p = GetProductFromStoreByID(store, item);
+                                if (cart.ContainsKey(p) && tempInv[p] >= quantity)
                                 {
                                     cart[p] += quantity;
+                                    tempInv[p] -= quantity;
+                                }
+                                else if(!cart.ContainsKey(p) && tempInv[p] >= quantity)
+                                {
+                                    cart[p] = quantity;
+                                    tempInv[p] -= quantity;
                                 }
                                 else
                                 {
-                                    cart[p] = quantity;
+                                    throw new ArgumentException("Trying to add too many!");
                                 }
                                 Outputter.WriteLine("Item added successfully!");
                             }
@@ -192,11 +199,13 @@ namespace UI
                                         if(cartItem.Value <= quantity2)
                                         {
                                             cart.Remove(cartItem.Key);
+                                            tempInv[cartItem.Key] += cartItem.Value;
                                             Outputter.WriteLine("Item removed successfully!");
                                         }
                                         else
                                         {
                                             cart[cartItem.Key] -= quantity2;
+                                            tempInv[cartItem.Key] += quantity2;
                                             Outputter.WriteLine($"Removed {quantity2} {p.Name}'s from cart successfully!");
                                         }
                                     }
@@ -401,7 +410,7 @@ namespace UI
 
         public void PrintStoreLocations()
         {
-            List<Store> s = StoreRepo.GetStores().ToList();
+            List<Store> s = StoreRepo.GetStores();
             if(s.Count == 0)
             {
                 Outputter.WriteLine("No locations available!");
@@ -490,7 +499,7 @@ namespace UI
 
         public void PrintCustomerList()
         {
-            List<Customer> customers = CustomerRepo.GetCustomers().ToList();
+            List<Customer> customers = CustomerRepo.GetCustomers();
             if(customers.Count == 0)
             {
                 Outputter.WriteLine("No customers in database.");

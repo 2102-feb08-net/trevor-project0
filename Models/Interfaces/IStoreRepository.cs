@@ -13,7 +13,7 @@ namespace Models
         /// </summary>
         /// <param name="search">Search for store with some name</param>
         /// <returns>A list of Stores</returns>
-        IEnumerable<Store> GetStores(string search = null);
+        List<Store> GetStores(string search = null);
         
         /// <summary>
         /// Get a store by its Primary key in the database.

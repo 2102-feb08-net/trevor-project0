@@ -109,7 +109,7 @@ namespace DAL
             }
         }
 
-        public IEnumerable<Store> GetStores(string search = null)
+        public List<Store> GetStores(string search = null)
         {
             using var _context = new Project0Context(_options);
             List<Store> stores = new List<Store>();

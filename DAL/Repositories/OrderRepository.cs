@@ -98,7 +98,7 @@ namespace DAL
             }
         }
 
-        public IEnumerable<Order> GetOrdersByCustomerID(int customerID)
+        public List<Order> GetOrdersByCustomerID(int customerID)
         {
             using var _context = new Project0Context(_options);
             List<Order> orders = new List<Order>();
@@ -150,7 +150,7 @@ namespace DAL
             }
         }
 
-        public IEnumerable<Order> GetOrdersByStoreID(int storeId)
+        public List<Order> GetOrdersByStoreID(int storeId)
         {
             using var _context = new Project0Context(_options);
             List<Order> orders = new List<Order>();

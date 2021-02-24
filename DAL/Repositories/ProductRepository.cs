@@ -87,7 +87,7 @@ namespace DAL
             }
         }
 
-        public IEnumerable<Product> GetProducts(string search = null)
+        public List<Product> GetProducts(string search = null)
         {
             using var _context = new Project0Context(_options);
             IQueryable<ProductDAL> query = _context.Products;
@@ -102,7 +102,7 @@ namespace DAL
                     ID = p.Id,
                     Name = p.Name,
                     Price = p.Price
-                });
+                }).ToList();
             }
             else
             {
