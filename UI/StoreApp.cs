@@ -12,9 +12,6 @@ namespace UI
     {
         public Inputter Inputter { get; }
         public Outputter Outputter { get; }
-        public List<Store> Stores { get; set; }
-        public List<Customer> Customers { get; set; }
-        public List<Product> Products { get; set; }
         public Project0Context Context { get; set; }
         public CustomerRepository CustomerRepo { get; set; }
         public StoreRepository StoreRepo { get; set; }
@@ -25,19 +22,12 @@ namespace UI
         public StoreApp()
         {
             string _connectionString = File.ReadAllText("C:/revature/project0-connection-string.txt");
-            var s_dbContextOptions = new DbContextOptionsBuilder<Project0Context>()
-                .UseSqlServer(_connectionString)
-                .Options;
-            Context = new Project0Context(s_dbContextOptions);
-            CustomerRepo = new CustomerRepository(Context);
-            StoreRepo = new StoreRepository(Context);
-            ProductRepo = new ProductRepository(Context);
-            OrderRepo = new OrderRepository(Context);
+            CustomerRepo = new CustomerRepository(_connectionString);
+            StoreRepo = new StoreRepository(_connectionString);
+            ProductRepo = new ProductRepository(_connectionString);
+            OrderRepo = new OrderRepository(_connectionString);
             Inputter = new Inputter();
             Outputter = new Outputter();
-            Stores = StoreRepo.GetStores().ToList();
-            Customers = CustomerRepo.GetCustomers().ToList();
-            Products = ProductRepo.GetProducts().ToList();
         }
         public void Run()
         {
@@ -70,7 +60,6 @@ namespace UI
                         string storeCity = Inputter.GetStringInput();
                         Outputter.Write("Enter the stores state: ");
                         string storeState = Inputter.GetStringInput();
-                        Stores.Add(new Store(storeName, storeCity, storeState));
                         StoreRepo.AddStore(new Store(storeName, storeCity, storeState));
                         StoreRepo.Save();
                     }
@@ -94,7 +83,7 @@ namespace UI
                         PlaceNewOrder(currentStore);
                         break;
                     case 4:
-                        DisplayOrderDetails(currentStore);
+                        DisplayOrderDetails();
                         break;
                     case 5:
                         DisplayCustomerOrders();
@@ -263,7 +252,7 @@ namespace UI
             }
         }
 
-        public void DisplayOrderDetails(Store store)
+        public void DisplayOrderDetails()
         {
             Outputter.Write("Enter the order number to display: ");
             int orderNumber = Inputter.GetIntegerInput();

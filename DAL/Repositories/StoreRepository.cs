@@ -10,19 +10,22 @@ namespace DAL
 {
     public class StoreRepository : Models.IStoreRepository
     {
-        private readonly Project0Context _context;
+        private DbContextOptions<Project0Context> _options;
 
         /// <summary>
         /// Ensures database connection is working properly
         /// </summary>
         /// <param name="context">Data source</param>
-        public StoreRepository(Project0Context context)
+        public StoreRepository(string connectionString)
         {
-            _context = context ?? throw new ArgumentNullException("Error instantiating Store Repository");
+            _options = new DbContextOptionsBuilder<Project0Context>()
+                .UseSqlServer(connectionString)
+                .Options;
         }
 
         public void AddStore(Store store)
         {
+            using var _context = new Project0Context(_options);
             var newStore = new StoreDAL
             {
                 Name = store.Name,
@@ -35,6 +38,7 @@ namespace DAL
 
         public void AddToInventory(Product product, Store store, int quantity)
         {
+            using var _context = new Project0Context(_options);
             //Check store and product exist
             StoreDAL s = _context.Stores.Find(store.ID);
             ProductDAL p = _context.Products.Find(product.ID);
@@ -42,11 +46,6 @@ namespace DAL
             {
                 throw new Exception("Product or store does not exist in database");
             }
-            ProductDAL newProduct = new ProductDAL
-            {
-                Name = product.Name,
-                Price = Convert.ToDecimal(product.Price)
-            };
             StoreItemDAL newInventoryItem = new StoreItemDAL
             {
                 //Id is auto incrementing, so no need to instantiate one here
@@ -59,6 +58,7 @@ namespace DAL
 
         public Product GetProductFromInventory(int productID, int storeID)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.StoreItems
                 .Include(s => s.Product)
                 .Where(s => s.ProductId == productID && s.StoreId == storeID).First();
@@ -79,6 +79,7 @@ namespace DAL
 
         public Store GetStoreByID(int id)
         {
+            using var _context = new Project0Context(_options);
             StoreDAL query = _context.Stores
                 .Include(s => s.StoreItems)
                     .ThenInclude(p => p.Product)
@@ -108,6 +109,7 @@ namespace DAL
 
         public IEnumerable<Store> GetStores(string search = null)
         {
+            using var _context = new Project0Context(_options);
             List<Store> stores = new List<Store>();
             IQueryable<StoreDAL> query = _context.Stores
                 .Include(s => s.StoreItems)
@@ -136,6 +138,7 @@ namespace DAL
 
         public void RemoveItemFromInventory(Product product, Store store)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.StoreItems.Where(x => x.ProductId == product.ID && x.StoreId == store.ID).First();
             if(query != null)
             {
@@ -149,11 +152,13 @@ namespace DAL
 
         public void Save()
         {
+            using var _context = new Project0Context(_options);
             _context.SaveChanges();
         }
 
         public void UpdateItemQuantity(Product product, Store store, int quantity)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.StoreItems.Where(p => p.ProductId == product.ID && p.StoreId == store.ID).First();
             if(query != null)
             {
@@ -168,6 +173,7 @@ namespace DAL
 
         public void UpdateStore(Store store)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.Stores
                 .Include(s => s.StoreItems)
                     .ThenInclude(p => p.Product).First(s => s.Id == store.ID);
@@ -187,6 +193,7 @@ namespace DAL
 
         public void ProcessInventoryForOrder(Store store, Dictionary<Product, int> cart)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.StoreItems
                 .Include(s => s.Product)
                 .Where(s => s.StoreId == store.ID);

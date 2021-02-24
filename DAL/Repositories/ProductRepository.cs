@@ -10,18 +10,21 @@ namespace DAL
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly Project0Context _context;
+        private DbContextOptions<Project0Context> _options;
 
         /// <summary>
         /// Ensures database connection is working properly
         /// </summary>
         /// <param name="context">Data source</param>
-        public ProductRepository(Project0Context context)
+        public ProductRepository(string connectionString)
         {
-            _context = context ?? throw new ArgumentNullException("Error instantiating Store Repository");
+            _options = new DbContextOptionsBuilder<Project0Context>()
+                .UseSqlServer(connectionString)
+                .Options;
         }
         public void AddProduct(Product product)
         {
+            using var _context = new Project0Context(_options);
             ProductDAL newProduct = new ProductDAL
             {
                 Name = product.Name,
@@ -32,6 +35,7 @@ namespace DAL
 
         public void DeleteProduct(Product product)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.Products.Find(product.ID);
             if(query != null)
             {
@@ -45,6 +49,7 @@ namespace DAL
 
         public Product GetProductByID(int id)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.Products.Find(id);
             if(query != null)
             {
@@ -63,6 +68,7 @@ namespace DAL
 
         public Product GetProductByNameAndPrice(string name, decimal p)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.Products.Where(x => x.Name.Contains(name) && x.Price == p).First();
             if(query != null)
             {
@@ -81,6 +87,7 @@ namespace DAL
 
         public IEnumerable<Product> GetProducts(string search = null)
         {
+            using var _context = new Project0Context(_options);
             IQueryable<ProductDAL> query = _context.Products;
             if(search != null)
             {
@@ -103,11 +110,13 @@ namespace DAL
 
         public void Save()
         {
+            using var _context = new Project0Context(_options);
             _context.SaveChanges();
         }
 
         public void UpdateProduct(Product product)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.Products.Find(product.ID);
             if(query != null)
             {

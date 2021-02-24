@@ -10,18 +10,21 @@ namespace DAL
 {
     public class OrderRepository : IOrderRepository
     {
-        private readonly Project0Context _context;
+        private DbContextOptions<Project0Context> _options;
 
         /// <summary>
         /// Ensures database connection is working properly
         /// </summary>
         /// <param name="context">Data source</param>
-        public OrderRepository(Project0Context context)
+        public OrderRepository(string connectionString)
         {
-            _context = context ?? throw new ArgumentNullException("Error instantiating Store Repository");
+            _options = new DbContextOptionsBuilder<Project0Context>()
+                .UseSqlServer(connectionString)
+                .Options;
         }
         public void AddOrder(Order order)
         {
+            using var _context = new Project0Context(_options);
             OrderDAL newOrder = new OrderDAL
             {
                 StoreId = order.Store.ID,
@@ -34,6 +37,7 @@ namespace DAL
 
         public void AddOrderItem(Product product, Order order, int quantity)
         {
+            using var _context = new Project0Context(_options);
             OrderItemDAL toAdd = new OrderItemDAL
             {
                 //Order item Id is auto incrementing so no need to instantiate here
@@ -46,6 +50,7 @@ namespace DAL
 
         public Order GetOrderByID(int id)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.Orders
                 .Include(o => o.OrderItems)
                     .ThenInclude(p => p.Product)
@@ -93,6 +98,7 @@ namespace DAL
 
         public IEnumerable<Order> GetOrdersByCustomerID(int customerID)
         {
+            using var _context = new Project0Context(_options);
             List<Order> orders = new List<Order>();
             var query = _context.Orders
                 .Include(o => o.OrderItems)
@@ -144,6 +150,7 @@ namespace DAL
 
         public IEnumerable<Order> GetOrdersByStoreID(int storeId)
         {
+            using var _context = new Project0Context(_options);
             List<Order> orders = new List<Order>();
             var query = _context.Orders
                 .Include(o => o.OrderItems)
@@ -195,6 +202,7 @@ namespace DAL
 
         public void RemoveOrderItem(Product product, Order order)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.OrderItems.Where(oi => oi.ProductId == product.ID && oi.OrderId == order.ID).First();
             if (query != null)
             {
@@ -208,11 +216,13 @@ namespace DAL
 
         public void Save()
         {
+            using var _context = new Project0Context(_options);
             _context.SaveChanges();
         }
 
         public void UpdateOrderItemQuantity(Product product, Order order, int quantity)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.OrderItems.Where(oi => oi.ProductId == product.ID && oi.OrderId == order.ID).First();
             if(query != null)
             {
@@ -227,6 +237,7 @@ namespace DAL
 
         public void UpdateOrder(Order order)
         {
+            using var _context = new Project0Context(_options);
             OrderDAL toUpdate = _context.Orders.Find(order.ID);
             if(toUpdate != null)
             {
@@ -242,6 +253,7 @@ namespace DAL
 
         public Order GetMostRecentOrder()
         {
+            using var _context = new Project0Context(_options);
             var query = _context.Orders.OrderByDescending(o => o.Id).First();
             if(query != null)
             {

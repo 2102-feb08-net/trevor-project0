@@ -11,18 +11,21 @@ namespace DAL
 {
     public class CustomerRepository : ICustomerRepository
     {
-        private readonly Project0Context _context;
+        private DbContextOptions<Project0Context> _options;
 
         /// <summary>
         /// Ensures database connection is working properly
         /// </summary>
         /// <param name="context">Data source</param>
-        public CustomerRepository(Project0Context context)
+        public CustomerRepository(string connectionString)
         {
-            _context = context ?? throw new ArgumentNullException("Error instantiating Store Repository");
+            _options = new DbContextOptionsBuilder<Project0Context>()
+                .UseSqlServer(connectionString)
+                .Options;
         }
         public void AddCustomer(Customer customer)
         {
+            using var _context = new Project0Context(_options);
             CustomerDAL newCustomer = new CustomerDAL
             {
                 FirstName = customer.FirstName,
@@ -35,6 +38,7 @@ namespace DAL
 
         public Customer GetCustomerByID(int id)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.Customers.Find(id);
             if(query != null)
             {
@@ -55,6 +59,7 @@ namespace DAL
 
         public IEnumerable<Customer> GetCustomers(string firstName = null, string lastName = null)
         {
+            using var _context = new Project0Context(_options);
             IQueryable<CustomerDAL> query = _context.Customers;
             if(firstName != null && lastName != null)
             {
@@ -80,11 +85,13 @@ namespace DAL
 
         public void Save()
         {
+            using var _context = new Project0Context(_options);
             _context.SaveChanges();
         }
 
         public void UpdateCustomer(Customer customer)
         {
+            using var _context = new Project0Context(_options);
             var query = _context.Customers.Find(customer.ID);
             if(query != null)
             {
