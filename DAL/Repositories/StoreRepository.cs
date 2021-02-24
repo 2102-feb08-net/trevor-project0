@@ -10,7 +10,7 @@ namespace DAL
 {
     public class StoreRepository : Models.IStoreRepository
     {
-        private DbContextOptions<Project0Context> _options;
+        private readonly DbContextOptions<Project0Context> _options;
 
         /// <summary>
         /// Ensures database connection is working properly

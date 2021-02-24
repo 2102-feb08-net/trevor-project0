@@ -12,7 +12,6 @@ namespace UI
     {
         public Inputter Inputter { get; }
         public Outputter Outputter { get; }
-        public Project0Context Context { get; set; }
         public CustomerRepository CustomerRepo { get; set; }
         public StoreRepository StoreRepo { get; set; }
         public ProductRepository ProductRepo { get; set; }
