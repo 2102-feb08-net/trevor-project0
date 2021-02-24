@@ -229,7 +229,7 @@ namespace UI
                             {
                                 Order order = new Order(customer, store);
                                 order.Items = cart;
-                                order.CalculateOrderTotal(Products);
+                                order.CalculateOrderTotal();
                                 order.SubmitOrder();
                                 StoreRepo.UpdateStore(order.Store);
                                 StoreRepo.ProcessInventoryForOrder(order.Store, cart);
@@ -287,7 +287,7 @@ namespace UI
                 Outputter.WriteLine($"{item.Key.ID} - ({item.Value}) {item.Key.Name} ${item.Key.Price*item.Value}");
             }
             Outputter.WriteLine("________");
-            order.CalculateOrderTotal(Products);
+            order.CalculateOrderTotal();
             Outputter.WriteLine($"Total: ${order.TotalPrice}");
         }
 
@@ -359,7 +359,7 @@ namespace UI
                             ProductRepo.AddProduct(toAdd);
                             ProductRepo.Save();
                             toAdd = ProductRepo.GetProductByNameAndPrice(name, Convert.ToDecimal(price)); // This is necessary to get the ID of the product we just added
-                            store.AddToInventory(toAdd, quantity);
+                            store.AddToInventory(toAdd, quantity); // Don't think I need this
                             StoreRepo.AddToInventory(toAdd, store, quantity);
                             StoreRepo.Save();
                             Outputter.WriteLine("Product added to inventory successfully!");
@@ -413,18 +413,6 @@ namespace UI
                         break;
                 }
             }
-        }
-
-        public Store GetStoreByID(int location, List<Store> Stores)
-        {
-            foreach(var store in Stores)
-            {
-                if(store.ID == location)
-                {
-                    return store;
-                }
-            }
-            throw new Exception();
         }
 
         public void PrintStoreLocations()
@@ -483,30 +471,6 @@ namespace UI
                     Outputter.WriteLine($"{item.Key.ID}\t\t{item.Key.Name}\t\t${item.Key.Price}\t\t{item.Value-inOrder} Available");
                 }
             }
-        }
-
-        public Customer GetCustomerByID(int id)
-        {
-            foreach(var customer in Customers)
-            {
-                if(customer.ID == id)
-                {
-                    return customer;
-                }
-            }
-            throw new Exception();
-        }
-
-        public Product GetProductByID(int id)
-        {
-            foreach(var item in Products)
-            {
-                if(item.ID == id)
-                {
-                    return item;
-                }
-            }
-            throw new Exception("Item not found.");
         }
 
         public Product GetProductFromStoreByID(Store store, int id)

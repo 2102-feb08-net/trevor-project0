@@ -116,7 +116,7 @@ namespace Models
             GrossProfit += order.TotalPrice;
         }
 
-        public Product GetKeyByID(int id)
+        private Product GetKeyByID(int id)
         {
             foreach(var item in Inventory)
             {
@@ -125,7 +125,7 @@ namespace Models
                     return item.Key;
                 }
             }
-            return null;
+            throw new Exception("Item doesn't exist");
         }
     }
 }

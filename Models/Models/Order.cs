@@ -78,7 +78,7 @@ namespace Models
             }
         }
 
-        public void CalculateOrderTotal(List<Product> Products)
+        public void CalculateOrderTotal()
         {
             TotalPrice = 0;
             if(Items.Count > 0)
@@ -95,7 +95,7 @@ namespace Models
             //Make sure order meets criteria to be processed
             if(Items.Count == 0)
             {
-                return;
+                throw new Exception("Cannot process order because cart is empty");
             }
             if(Store.OrderIsValid(this))
             {
