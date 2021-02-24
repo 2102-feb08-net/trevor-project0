@@ -143,7 +143,7 @@ namespace UI
             }
             catch(Exception e)
             {
-                Outputter.WriteLine("Couldn't find customer with that ID.");
+                Outputter.WriteLine(e.Message);
             }
         }
 
@@ -167,7 +167,7 @@ namespace UI
                     switch(option)
                     {
                         case 1:
-                            PrintInventory(store, cart);
+                            PrintInventory(store.ID, cart);
                             Outputter.Write("Enter an item to add to cart: ");
                             int item = Inputter.GetIntegerInput();
                             Outputter.Write("Enter how many you would like: ");
@@ -378,9 +378,16 @@ namespace UI
                             Product p = GetProductFromStoreByID(store, productID);
                             Outputter.Write("How many do you want to add to inventory: ");
                             int quantity2 = Inputter.GetIntegerInput();
-                            StoreRepo.UpdateItemQuantity(p, store, quantity2);
-                            StoreRepo.Save();
-                            Outputter.WriteLine("Product inventory added successfully!");
+                            if(quantity2 > 0)
+                            {
+                                StoreRepo.UpdateItemQuantity(p, store, quantity2);
+                                StoreRepo.Save();
+                                Outputter.WriteLine("Product inventory added successfully!");
+                            }
+                            else
+                            {
+                                Outputter.WriteLine("Can't add 0 or negative inventory amount");
+                            }
                         }
                         catch(Exception)
                         {
@@ -449,8 +456,9 @@ namespace UI
             }
         }
 
-        public void PrintInventory(Store store, Dictionary<Product, int> cart)
+        public void PrintInventory(int storeID, Dictionary<Product, int> cart)
         {
+            Store store = StoreRepo.GetStoreByID(storeID);
             if(store.Inventory.Count == 0)
             {
                 Outputter.WriteLine("Inventory is empty.");
