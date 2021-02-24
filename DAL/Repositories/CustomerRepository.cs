@@ -34,6 +34,7 @@ namespace DAL
                 Address = customer.Address
             };
             _context.Add(newCustomer);
+            _context.SaveChanges();
         }
 
         public Customer GetCustomerByID(int id)
@@ -83,12 +84,6 @@ namespace DAL
             });
         }
 
-        public void Save()
-        {
-            using var _context = new Project0Context(_options);
-            _context.SaveChanges();
-        }
-
         public void UpdateCustomer(Customer customer)
         {
             using var _context = new Project0Context(_options);
@@ -100,6 +95,7 @@ namespace DAL
                 query.Email = customer.Email;
                 query.Address = customer.Address;
                 _context.Update(query);
+                _context.SaveChanges();
             }
             else
             {

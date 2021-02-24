@@ -60,7 +60,6 @@ namespace UI
                         Outputter.Write("Enter the stores state: ");
                         string storeState = Inputter.GetStringInput();
                         StoreRepo.AddStore(new Store(storeName, storeCity, storeState));
-                        StoreRepo.Save();
                     }
                 }
                 int option = 0;
@@ -114,7 +113,6 @@ namespace UI
             Outputter.Write("Enter an address for new customer: ");
             string address = Inputter.GetAnyInput();
             CustomerRepo.AddCustomer(new Customer(firstName, lastName, email, address));
-            CustomerRepo.Save();
             Outputter.WriteLine("Customer added successfully!");
         }
 
@@ -221,16 +219,13 @@ namespace UI
                                 order.SubmitOrder();
                                 StoreRepo.UpdateStore(order.Store);
                                 StoreRepo.ProcessInventoryForOrder(order.Store, cart);
-                                StoreRepo.Save();
                                 ordering = false;
                                 OrderRepo.AddOrder(order);
-                                OrderRepo.Save();
                                 order = OrderRepo.GetMostRecentOrder();
                                 foreach(var orderItem in cart)
                                 {
                                     OrderRepo.AddOrderItem(orderItem.Key, order, orderItem.Value);
                                 }
-                                OrderRepo.Save();
                                 Outputter.WriteLine("Order placed successfully!");
                             }
                             catch(Exception)
@@ -345,11 +340,9 @@ namespace UI
                         {
                             Product toAdd = new Product(name, price);
                             ProductRepo.AddProduct(toAdd);
-                            ProductRepo.Save();
                             toAdd = ProductRepo.GetProductByNameAndPrice(name, Convert.ToDecimal(price)); // This is necessary to get the ID of the product we just added
                             store.AddToInventory(toAdd, quantity); // Don't think I need this
                             StoreRepo.AddToInventory(toAdd, store, quantity);
-                            StoreRepo.Save();
                             Outputter.WriteLine("Product added to inventory successfully!");
                         }
                         catch(ArgumentException)
@@ -369,7 +362,6 @@ namespace UI
                             if(quantity2 > 0)
                             {
                                 StoreRepo.UpdateItemQuantity(p, store, quantity2);
-                                StoreRepo.Save();
                                 Outputter.WriteLine("Product inventory added successfully!");
                             }
                             else
@@ -390,7 +382,6 @@ namespace UI
                         {
                             Product remove = GetProductFromStoreByID(store, idRemove);
                             StoreRepo.RemoveItemFromInventory(remove, store);
-                            StoreRepo.Save();
                             Outputter.WriteLine("Product successfully removed from inventory!");
                         }
                         catch(Exception)
@@ -403,8 +394,6 @@ namespace UI
                         break;
                     case 5:
                         editting = false;
-                        StoreRepo.Save();
-                        ProductRepo.Save();
                         break;
                 }
             }

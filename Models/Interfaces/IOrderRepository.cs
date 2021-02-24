@@ -68,10 +68,5 @@ namespace Models
         /// <param name="product">Product to remove</param>
         /// <param name="order">Order to remove from</param>
         void RemoveOrderItem(Product product, Order order);
-
-        /// <summary>
-        /// Commit changes to database
-        /// </summary>
-        void Save();
     }
 }

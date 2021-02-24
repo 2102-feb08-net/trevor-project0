@@ -64,10 +64,5 @@ namespace Models
         /// <param name="product">Product to be removed</param>
         /// <param name="store">Store to be updated</param>
         void RemoveItemFromInventory(Product product, Store store);
-
-        /// <summary>
-        /// Commit changes to database
-        /// </summary>
-        void Save();
     }
 }

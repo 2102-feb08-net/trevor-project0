@@ -31,9 +31,10 @@ namespace DAL
                 Name = store.Name,
                 City = store.City,
                 State = store.State,
-                Profit = Convert.ToDecimal(store.GrossProfit),
+                Profit = store.GrossProfit,
             };
             _context.Add(newStore);
+            _context.SaveChanges();
         }
 
         public void AddToInventory(Product product, Store store, int quantity)
@@ -54,6 +55,7 @@ namespace DAL
                 Quantity = quantity
             };
             _context.Add(newInventoryItem);
+            _context.SaveChanges();
         }
 
         public Product GetProductFromInventory(int productID, int storeID)
@@ -143,17 +145,12 @@ namespace DAL
             if(query != null)
             {
                 _context.Remove(query);
+                _context.SaveChanges();
             }
             else
             {
                 throw new Exception("Couldn't find product in store inventory");
             }
-        }
-
-        public void Save()
-        {
-            using var _context = new Project0Context(_options);
-            _context.SaveChanges();
         }
 
         public void UpdateItemQuantity(Product product, Store store, int quantity)
@@ -164,6 +161,7 @@ namespace DAL
             {
                 query.Quantity += quantity;
                 _context.Update(query);
+                _context.SaveChanges();
             }
             else
             {
@@ -184,6 +182,7 @@ namespace DAL
                 query.State = store.State;
                 query.Profit = store.GrossProfit;
                 _context.Update(query);
+                _context.SaveChanges();
             }
             else
             {
@@ -209,6 +208,7 @@ namespace DAL
                     }
                 }
                 _context.Update(storeItem);
+                _context.SaveChanges();
             }
         }
     }

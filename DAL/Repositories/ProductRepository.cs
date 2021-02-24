@@ -31,6 +31,7 @@ namespace DAL
                 Price = Convert.ToDecimal(product.Price)
             };
             _context.Add(newProduct);
+            _context.SaveChanges();
         }
 
         public void DeleteProduct(Product product)
@@ -40,6 +41,7 @@ namespace DAL
             if(query != null)
             {
                 _context.Remove(query);
+                _context.SaveChanges();
             }
             else
             {
@@ -108,12 +110,6 @@ namespace DAL
             }
         }
 
-        public void Save()
-        {
-            using var _context = new Project0Context(_options);
-            _context.SaveChanges();
-        }
-
         public void UpdateProduct(Product product)
         {
             using var _context = new Project0Context(_options);
@@ -123,6 +119,7 @@ namespace DAL
                 query.Name = product.Name;
                 query.Price = Convert.ToDecimal(product.Price);
                 _context.Update(query);
+                _context.SaveChanges();
             }
             else
             {

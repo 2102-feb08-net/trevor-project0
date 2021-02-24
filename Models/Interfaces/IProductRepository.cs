@@ -47,10 +47,5 @@ namespace Models
         /// </summary>
         /// <param name="product">Product to delete</param>
         void DeleteProduct(Product product);
-
-        /// <summary>
-        /// Commit changes to database
-        /// </summary>
-        void Save();
     }
 }

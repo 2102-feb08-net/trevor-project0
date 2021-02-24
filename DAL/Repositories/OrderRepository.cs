@@ -33,6 +33,7 @@ namespace DAL
                 OrderTime = order.OrderTime,
             };
             _context.Add(newOrder);
+            _context.SaveChanges();
         }
 
         public void AddOrderItem(Product product, Order order, int quantity)
@@ -46,6 +47,7 @@ namespace DAL
                 Quantity = quantity
             };
             _context.Add(toAdd);
+            _context.SaveChanges();
         }
 
         public Order GetOrderByID(int id)
@@ -207,17 +209,12 @@ namespace DAL
             if (query != null)
             {
                 _context.Remove(query);
+                _context.SaveChanges();
             }
             else
             {
                 throw new Exception("Couldn't find order item to remove");
             }
-        }
-
-        public void Save()
-        {
-            using var _context = new Project0Context(_options);
-            _context.SaveChanges();
         }
 
         public void UpdateOrderItemQuantity(Product product, Order order, int quantity)
@@ -228,6 +225,7 @@ namespace DAL
             {
                 query.Quantity += quantity;
                 _context.Update(query);
+                _context.SaveChanges();
             }
             else
             {
@@ -244,6 +242,7 @@ namespace DAL
                 toUpdate.TotalPrice = Convert.ToDecimal(order.TotalPrice);
                 toUpdate.OrderTime = order.OrderTime;
                 _context.Update(toUpdate);
+                _context.SaveChanges();
             }
             else
             {

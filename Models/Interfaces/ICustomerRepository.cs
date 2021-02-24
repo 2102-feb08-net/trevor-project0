@@ -33,10 +33,5 @@ namespace Models
         /// </summary>
         /// <param name="customer">Customer to update</param>
         void UpdateCustomer(Customer customer);
-
-        /// <summary>
-        /// Commit changes to database
-        /// </summary>
-        void Save();
     }
 }
